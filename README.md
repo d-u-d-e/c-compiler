@@ -6,4 +6,3 @@ Maybe in the future when the project is sufficiently mature, we will write the s
 # Useful links
 - Writing a C Compiler: https://norasandler.com/book/
 - Gitflow: https://www.atlassian.com/it/git/tutorials/comparing-workflows/gitflow-workflow
-mm
