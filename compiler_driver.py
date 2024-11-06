@@ -15,15 +15,18 @@ def main():
 
     # Ensure input file has a .c extension
     if not INPUT_FILE.endswith(".c"):
-        raise ValueError("Error: The input file must have a .c extension.")
+        raise ValueError("The input file must have a .c extension.")
 
     # Check for options
     if len(sys.argv) == 3:
         if "--lex" in sys.argv:
+            # TODO: run the lexer, but stop before parsing
             sys.exit(0)
         elif "--parse" in sys.argv:
+            # TODO: run the lexer and parser, but stop before assembly generation
             sys.exit(0)
         elif "--codegen" in sys.argv:
+            # TODO: perform lexing, parsing, and assembly generation, but stop before code emission
             sys.exit(0)
         else:
             raise ValueError(
