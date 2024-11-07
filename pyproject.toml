@@ -2,7 +2,12 @@
 name = "c-compiler"
 version = "0.1.0"
 description = "A C compiler implemented in Python, following the principles and techniques outlined in 'Writing a C Compiler' by N. Sandler."
-authors = ["Alberto Ursino <albertoursino98@gmail.com>, Marco Mariotto, Fabio Marangoni", "Luca Crema"]
+authors = [
+    "Alberto Ursino <albertoursino98@gmail.com>",
+    "Marco Mariotto",
+    "Fabio Marangoni",
+    "Luca Crema",
+]
 readme = "README.md"
 
 [tool.poetry.dependencies]
