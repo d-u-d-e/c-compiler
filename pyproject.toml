@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "A C compiler implemented in Python, following the principles and techniques outlined in 'Writing a C Compiler' by N. Sandler."
 authors = [
     "Alberto Ursino <albertoursino98@gmail.com>",
-    "Marco Mariotto",
+    "Marco Mariotto <mari8.marco@gmail.com>",
     "Fabio Marangoni",
     "Luca Crema",
 ]
