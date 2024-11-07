@@ -1,34 +1,47 @@
 import os
 import subprocess
 import argparse
-from tempfile import NamedTemporaryFile
+from tempfile import _TemporaryFileWrapper, NamedTemporaryFile
+from typing import Union
 from loguru import logger
 
 
-def gcc_preprocess(input_file: str, output_file: NamedTemporaryFile) -> None:
+def gcc_preprocess(
+    input_file: str, output_file: Union[_TemporaryFileWrapper, str]
+) -> None:
     """Preprocess a C source file using GCC and save the result to a specified output file.
 
     Args:
         input_file: Path to the source C file to preprocess.
-        output_file: A temporary file object where the preprocessed
-            output will be saved. The file has a `.i` extension.
+        output_file: Path or temporary file object where the preprocessed output will be saved.
+            The file has a `.i` extension.
     """
+    if isinstance(output_file, _TemporaryFileWrapper):
+        output_file = output_file.name
+
     logger.info(f"Preprocessing C source file '{input_file}'...")
-    subprocess.run(["gcc", "-E", "-P", input_file, "-o", output_file.name], check=True)
+    subprocess.run(["gcc", "-E", "-P", input_file, "-o", output_file], check=True)
 
 
 def compile(
-    input_file: NamedTemporaryFile, output_file: NamedTemporaryFile, use_gcc: bool
+    input_file: Union[_TemporaryFileWrapper, str],
+    output_file: Union[_TemporaryFileWrapper, str],
+    use_gcc: bool,
 ) -> None:
     """Compiles a preprocessed C source file into an assembly file.
 
     Args:
-        input_file: A temporary file object representing the preprocessed C file.
+        input_file: Path or temporary file object representing the preprocessed C file.
             The file must have a `.i` extension.
-        output_file: A temporary file object where the compiled assembly output will be saved.
+        output_file: Temporary file object where the compiled assembly output will be saved.
             The file has a `.s` extension.
     """
-    logger.info(f"Compiling preprocessed file '{input_file.name}'...")
+    if isinstance(input_file, _TemporaryFileWrapper):
+        input_file = input_file.name
+    if isinstance(output_file, _TemporaryFileWrapper):
+        output_file = output_file.name
+
+    logger.info(f"Compiling preprocessed file '{input_file}'...")
     if use_gcc:
         subprocess.run(
             [
@@ -37,9 +50,9 @@ def compile(
                 "-O",
                 "-fno-asynchronous-unwind-tables",
                 "-fcf-protection=none",
-                input_file.name,
+                input_file,
                 "-o",
-                output_file.name,
+                output_file,
             ],
             check=True,
         )
@@ -48,23 +61,28 @@ def compile(
         pass
 
 
-def gcc_assemble_and_link(input_file: NamedTemporaryFile, output_file: str) -> None:
+def gcc_assemble_and_link(
+    input_file: Union[_TemporaryFileWrapper, str], output_file: str
+) -> None:
     """Assembles and links an assembly file to produce an executable.
 
     Args:
-        input_file: A temporary file object representing the assembly file to be assembled and linked.
+        input_file: Path or temporary file object representing the assembly file to be assembled and linked.
             The file must have a `.s` extension.
         output_file: Path where the resulting executable will be saved.
     """
-    logger.info(f"Assembling and linking assembly file '{input_file.name}'...")
-    subprocess.run(["gcc", input_file.name, "-o", output_file], check=True)
+    if isinstance(input_file, _TemporaryFileWrapper):
+        input_file = input_file.name
+
+    logger.info(f"Assembling and linking assembly file '{input_file}'...")
+    subprocess.run(["gcc", input_file, "-o", output_file], check=True)
 
 
 def cfile_type(s: str) -> str:
     """Checks if a given string is a valid C source file path.
 
     Args:
-        s: The path to the file as a string.
+        s: Path to the file as a string.
 
     Returns:
         str: The original string if it represents a valid C source file.
@@ -123,22 +141,18 @@ def main():
     INPUT_FILE = args.input_file
     OUTPUT_FILE, _ = os.path.splitext(INPUT_FILE)
 
-    # Create temporary files
-    preprocessed_file = NamedTemporaryFile(suffix=".i")
-    assembly_file = NamedTemporaryFile(suffix=".s")
-
     # Execute compiler driver's commands
-    try:
-        gcc_preprocess(INPUT_FILE, preprocessed_file)
+    with NamedTemporaryFile(suffix=".i") as preprocessed_file, NamedTemporaryFile(
+        suffix=".s"
+    ) as assembly_file:
+        try:
+            gcc_preprocess(INPUT_FILE, preprocessed_file)
 
-        compile(preprocessed_file, assembly_file, use_gcc=True)
+            compile(preprocessed_file, assembly_file, use_gcc=True)
 
-        gcc_assemble_and_link(assembly_file, OUTPUT_FILE)
-    except subprocess.CalledProcessError as e:
-        return e.returncode
-
-    preprocessed_file.close()
-    assembly_file.close()
+            gcc_assemble_and_link(assembly_file, OUTPUT_FILE)
+        except subprocess.CalledProcessError as e:
+            return e.returncode
 
     exit(0)
 
