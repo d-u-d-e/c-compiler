@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "c-compiler"
-version = "0.1.0"
+version = "0.1.1"
 description = "A C compiler implemented in Python, following the principles and techniques outlined in 'Writing a C Compiler' by N. Sandler."
 authors = [
     "Alberto Ursino <albertoursino98@gmail.com>",
