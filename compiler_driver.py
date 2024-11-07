@@ -1,8 +1,11 @@
+#!/usr/bin/env python3
+
 import os
 import subprocess
 import argparse
 from tempfile import NamedTemporaryFile
 from loguru import logger
+import lexer
 
 
 def gcc_preprocess(input_file: str, output_file: NamedTemporaryFile) -> None:
@@ -110,8 +113,12 @@ def main():
     # Parse the arguments
     args = parser.parse_args()
 
+    INPUT_FILE = args.input_file
+    OUTPUT_FILE, _ = os.path.splitext(INPUT_FILE)
+
     if args.lex:
         # TODO: Run the lexer, but stop before parsing
+        lexer.run(INPUT_FILE)
         exit(0)
     elif args.parse:
         # TODO: Run the lexer and parser, but stop before assembly generation
@@ -119,9 +126,6 @@ def main():
     elif args.codegen:
         # TODO: Perform lexing, parsing, and assembly generation, but stop before code emission
         exit(0)
-
-    INPUT_FILE = args.input_file
-    OUTPUT_FILE, _ = os.path.splitext(INPUT_FILE)
 
     # Create temporary files
     preprocessed_file = NamedTemporaryFile(suffix=".i")
