@@ -1,38 +1,77 @@
 import os
 import subprocess
-import sys
 import argparse
+from tempfile import NamedTemporaryFile
+from loguru import logger
 
 
-def gcc_preprocess(input_file: str, output_file: str) -> None:
-    """Preprocesses a C source file using gcc, and then writes the result to an output file.
+def gcc_preprocess(input_file: str, output_file: NamedTemporaryFile) -> None:
+    """Preprocess a C source file using GCC and save the result to a specified output file.
 
     Args:
         input_file: Path to the source C file to preprocess.
-        output_file: Path where the preprocessed output will be saved. By convention, it should have a `.i` file extension.
+        output_file: A temporary file object where the preprocessed
+            output will be saved. The file has a `.i` extension.
     """
-    subprocess.run(["gcc", "-E", input_file, "-o", output_file], check=True)
+    logger.info(f"Preprocessing C source file '{input_file}'...")
+    subprocess.run(["gcc", "-E", "-P", input_file, "-o", output_file.name], check=True)
 
 
-def compile(input_file: str, output_file: str) -> None:
+def compile(
+    input_file: NamedTemporaryFile, output_file: NamedTemporaryFile, use_gcc: bool
+) -> None:
     """Compiles a preprocessed C source file into an assembly file.
 
     Args:
-        input_file: Path to the preprocessed C file. This file should have a `.i` extension.
-        output_file: Path to the assembly output file.
+        input_file: A temporary file object representing the preprocessed C file.
+            The file must have a `.i` extension.
+        output_file: A temporary file object where the compiled assembly output will be saved.
+            The file has a `.s` extension.
     """
-    # TODO: Implement the compiler
-    pass
+    logger.info(f"Compiling preprocessed file '{input_file.name}'...")
+    if use_gcc:
+        subprocess.run(
+            [
+                "gcc",
+                "-S",
+                "-O",
+                "-fno-asynchronous-unwind-tables",
+                "-fcf-protection=none",
+                input_file.name,
+                "-o",
+                output_file.name,
+            ],
+            check=True,
+        )
+    else:
+        # TODO: Implement your compiler
+        pass
 
 
-def gcc_assemble_and_link(input_file: str, output_file: str) -> None:
+def gcc_assemble_and_link(input_file: NamedTemporaryFile, output_file: str) -> None:
     """Assembles and links an assembly file to produce an executable.
 
     Args:
-        input_file: Path to the assembly file to be assembled and linked.
+        input_file: A temporary file object representing the assembly file to be assembled and linked.
+            The file must have a `.s` extension.
         output_file: Path where the resulting executable will be saved.
     """
-    subprocess.run(["gcc", input_file, "-o", output_file], check=True)
+    logger.info(f"Assembling and linking assembly file '{input_file.name}'...")
+    subprocess.run(["gcc", input_file.name, "-o", output_file], check=True)
+
+
+def cfile_type(s: str) -> str:
+    """Check if a given string is a valid C source file path.
+
+    Args:
+        s: The path to the file as a string.
+
+    Returns:
+        str: The original string if it represents a valid C source file.
+    """
+    if not s.endswith(".c"):
+        raise argparse.ArgumentTypeError(f"Not a valid C source file: {s!r}")
+    return s
 
 
 def main():
@@ -42,8 +81,8 @@ def main():
     # Required input file argument
     parser.add_argument(
         "input_file",
-        type=str,
-        help="Path to the C source file (must have a .c extension).",
+        type=cfile_type,
+        help="Path to the C source file",
     )
 
     # Create a mutually exclusive group
@@ -73,36 +112,35 @@ def main():
 
     if args.lex:
         # TODO: Run the lexer, but stop before parsing
-        sys.exit(0)
+        exit(0)
     elif args.parse:
         # TODO: Run the lexer and parser, but stop before assembly generation
-        sys.exit(0)
+        exit(0)
     elif args.codegen:
         # TODO: Perform lexing, parsing, and assembly generation, but stop before code emission
-        sys.exit(0)
+        exit(0)
 
     INPUT_FILE = args.input_file
-
-    # Create file names
     OUTPUT_FILE, _ = os.path.splitext(INPUT_FILE)
-    ASSEMBLY_FILE = f"{OUTPUT_FILE}.s"
-    PREPROCESSED_FILE = f"{OUTPUT_FILE}.i"
+
+    # Create temporary files
+    preprocessed_file = NamedTemporaryFile(suffix=".i")
+    assembly_file = NamedTemporaryFile(suffix=".s")
 
     # Execute compiler driver's commands
     try:
-        gcc_preprocess(INPUT_FILE, PREPROCESSED_FILE)
+        gcc_preprocess(INPUT_FILE, preprocessed_file)
 
-        compile(PREPROCESSED_FILE, ASSEMBLY_FILE)
+        compile(preprocessed_file, assembly_file, use_gcc=True)
 
-        gcc_assemble_and_link(ASSEMBLY_FILE, OUTPUT_FILE)
+        gcc_assemble_and_link(assembly_file, OUTPUT_FILE)
     except subprocess.CalledProcessError as e:
         return e.returncode
 
-    # Remove intermidiate files
-    os.remove(PREPROCESSED_FILE)
-    os.remove(ASSEMBLY_FILE)
+    preprocessed_file.close()
+    assembly_file.close()
 
-    sys.exit(0)
+    exit(0)
 
 
 if __name__ == "__main__":

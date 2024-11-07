@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "c-compiler"
+version = "0.1.0"
+description = ""
+authors = ["Alberto Ursino, Marco Mariotto, Fabio Marangoni"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+loguru = "^0.7.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
