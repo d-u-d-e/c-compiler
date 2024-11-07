@@ -61,7 +61,7 @@ def gcc_assemble_and_link(input_file: NamedTemporaryFile, output_file: str) -> N
 
 
 def cfile_type(s: str) -> str:
-    """Check if a given string is a valid C source file path.
+    """Checks if a given string is a valid C source file path.
 
     Args:
         s: The path to the file as a string.
