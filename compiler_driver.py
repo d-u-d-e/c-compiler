@@ -174,18 +174,6 @@ def main():
         try:
             gcc_preprocess(INPUT_FILE, preprocessed_file.name)
 
-            # Just for testing purposes
-            if args.lex:
-                # TODO: Run the lexer, but stop before parsing
-                lexer.run(preprocessed_file.name)
-                exit(0)
-            elif args.parse:
-                # TODO: Run the lexer and parser, but stop before assembly generation
-                exit(0)
-            elif args.codegen:
-                # TODO: Perform lexing, parsing, and assembly generation, but stop before code emission
-                exit(0)
-
             compile(preprocessed_file.name, assembly_file.name, use_gcc=True)
 
             gcc_assemble_and_link(assembly_file.name, OUTPUT_FILE)
