@@ -9,44 +9,53 @@ def run(c_source_file: str) -> None:
         c_source_file: path to the C source file
     """
     logger.info(f"Running lexer on file '{c_source_file}...'")
-    token_regex = {
-        "Identifier": r"[a-zA-Z_]\w*\b",
-        "Constant": r"[0-9]+\b",
-        "int keyword": r"int\b",
-        "void keyword": r"void\b",
-        "return keyword": r"return\b",
-        "Open parenthesis": r"\(",
-        "Close parenthesis": r"\)",
-        "Open brace": r"{",
-        "Close brace": r"}",
-        "Semicolon": r";",
+
+    token_patterns = {
+        "Identifier": re.compile(r"[a-zA-Z_]\w*\b"),
+        "Constant": re.compile(r"[0-9]+\b"),
+        "Open parenthesis": re.compile(r"\("),
+        "Close parenthesis": re.compile(r"\)"),
+        "Open brace": re.compile(r"{"),
+        "Close brace": re.compile(r"}"),
+        "Semicolon": re.compile(r";"),
     }
 
-    token_list = []
+    token_keywords = {
+        "int keyword": re.compile(r"\bint\b"),
+        "void keyword": re.compile(r"\bvoid\b"),
+        "return keyword": re.compile(r"\breturn\b"),
+    }
+
+    output_tokens = []
 
     with open(c_source_file, "r") as file:
-        while True:
-            line = file.readline()
-            if not line:
+        code = file.read()
+
+    position = 0
+    while position < len(code):
+        # Trim whitespace
+        code = code[position:].lstrip()
+        position = 0
+
+        matched = False
+
+        # Check each regex pattern
+        for token_type, pattern in token_patterns.items():
+            match = pattern.match(code)
+            if match:
+                # Check if the identifier is a keyword
+                if token_type == "Identifier":
+                    for keyword, pattern in token_keywords.items():
+                        if re.fullmatch(pattern, match.group()):
+                            token_type = keyword
+                token_value = match.group()
+                output_tokens.append((token_type, token_value))
+                # Move past the matched token
+                position = match.end()
+                matched = True
                 break
 
-            while len(line) > 0:
-                # Trim whitespaces from start of line
-                line = line.lstrip()
-
-                check = False
-                # Find longest match at start of line for any regex
-                for regex in token_regex:
-                    match = re.match(token_regex[regex], line)
-                    if match:
-                        token_list.append(match.group())
-                        # Remove match from line
-                        line = line[match.end() :]
-                        check = True
-                        break
-
-                if not check:
-                    raise ValueError(
-                        f"The start of the string '{line}' doesn’t match the regular expression for any token"
-                    )
-        print(token_list)
+        if not matched and len(code) > 0:
+            # If no match found, report the unmatched part
+            error_segment = code[:20]  # First 20 chars of the unmatched segment
+            raise ValueError(f"Unrecognized sequence: '{error_segment}'")

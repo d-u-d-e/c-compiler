@@ -1,8 +1,13 @@
+#!/usr/bin/env -S python3
+# -*- coding: utf-8 -*-
+
 import os
 import subprocess
 import argparse
 from tempfile import NamedTemporaryFile
 from loguru import logger
+
+import lexer
 
 
 def gcc_preprocess(input_file: str, output_file: str) -> None:
@@ -40,6 +45,10 @@ def compile(input_file: str, output_file: str, use_gcc: bool) -> None:
         )
     else:
         # TODO: Implement your compiler
+        # 1. Lexer
+        # 2. Parser
+        # 3. Assembly generation
+        # 4. Code emission
         pass
 
 
@@ -104,16 +113,6 @@ def main():
     # Parse the arguments
     args = parser.parse_args()
 
-    if args.lex:
-        # TODO: Run the lexer, but stop before parsing
-        exit(0)
-    elif args.parse:
-        # TODO: Run the lexer and parser, but stop before assembly generation
-        exit(0)
-    elif args.codegen:
-        # TODO: Perform lexing, parsing, and assembly generation, but stop before code emission
-        exit(0)
-
     INPUT_FILE = args.input_file
     OUTPUT_FILE, _ = os.path.splitext(INPUT_FILE)
 
@@ -123,6 +122,18 @@ def main():
     ) as assembly_file:
         try:
             gcc_preprocess(INPUT_FILE, preprocessed_file.name)
+
+            # Just for testing purposes
+            if args.lex:
+                # TODO: Run the lexer, but stop before parsing
+                lexer.run(preprocessed_file.name)
+                exit(0)
+            elif args.parse:
+                # TODO: Run the lexer and parser, but stop before assembly generation
+                exit(0)
+            elif args.codegen:
+                # TODO: Perform lexing, parsing, and assembly generation, but stop before code emission
+                exit(0)
 
             compile(preprocessed_file.name, assembly_file.name, use_gcc=True)
 
