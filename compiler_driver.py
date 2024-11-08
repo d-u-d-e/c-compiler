@@ -1,3 +1,6 @@
+#!/usr/bin/env -S python3
+# -*- coding: utf-8 -*-
+
 import os
 import subprocess
 import argparse
@@ -40,6 +43,10 @@ def compile(input_file: str, output_file: str, use_gcc: bool) -> None:
         )
     else:
         # TODO: Implement your compiler
+        # 1. Lexer
+        # 2. Parser
+        # 3. Assembly generation
+        # 4. Code emission
         pass
 
 
@@ -61,11 +68,50 @@ def cfile_type(s: str) -> str:
         s: Path to the file as a string.
 
     Returns:
-        str: The original string if it represents a valid C source file.
+        The original string if it represents a valid C source file.
     """
     if not s.endswith(".c"):
         raise argparse.ArgumentTypeError(f"Not a valid C source file: {s!r}")
     return s
+
+
+def run_compiler_components(input_file: str, stage: str) -> None:
+    """Runs specified stages of the compiler based on input arguments.
+
+    This function preprocesses the input file and, depending on `stage`,
+    performs lexing, parsing, and/or code generation stages. It stops at the highest
+    requested stage:
+    - `lex`: Performs lexing only.
+    - `parse`: Performs lexing and parsing.
+    - `codegen`: Performs lexing, parsing, and code generation, stopping before code emission.
+
+    Raises:
+        subprocess.CalledProcessError: If the preprocessing step using GCC fails.
+        ValueError: If `stage` is not one of the expected values.
+
+    Args:
+        input_file: The path to the input C source file.
+        stage: Last stage to execute. Can be "lex", "parse" or "codegen".
+    """
+    with NamedTemporaryFile(suffix=".i") as preprocessed_file:
+        try:
+            gcc_preprocess(input_file, preprocessed_file.name)
+        except subprocess.CalledProcessError as e:
+            return e.returncode
+
+        if stage == "lex":
+            # TODO: Run the lexer, but stop before parsing
+            pass
+        elif stage == "parse":
+            # TODO: Run the lexer and parser, but stop before assembly generation
+            pass
+        elif stage == "codegen":
+            # TODO: Perform lexing, parsing, and assembly generation, but stop before code emission
+            pass
+        else:
+            raise ValueError(
+                f"The stage '{stage}' does not exist. Please choose between 'lex', 'parse' or 'codegen'."
+            )
 
 
 def main():
@@ -104,18 +150,12 @@ def main():
     # Parse the arguments
     args = parser.parse_args()
 
-    if args.lex:
-        # TODO: Run the lexer, but stop before parsing
-        exit(0)
-    elif args.parse:
-        # TODO: Run the lexer and parser, but stop before assembly generation
-        exit(0)
-    elif args.codegen:
-        # TODO: Perform lexing, parsing, and assembly generation, but stop before code emission
-        exit(0)
-
     INPUT_FILE = args.input_file
     OUTPUT_FILE, _ = os.path.splitext(INPUT_FILE)
+
+    if args.codegen or args.parse or args.lex:
+        run_compiler_components(INPUT_FILE, args)
+        exit(0)
 
     # Execute compiler driver's commands
     with NamedTemporaryFile(suffix=".i") as preprocessed_file, NamedTemporaryFile(
@@ -129,7 +169,6 @@ def main():
             gcc_assemble_and_link(assembly_file.name, OUTPUT_FILE)
         except subprocess.CalledProcessError as e:
             return e.returncode
-
     exit(0)
 
 
