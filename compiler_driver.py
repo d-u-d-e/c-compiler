@@ -11,7 +11,7 @@ import lexer
 
 
 def gcc_preprocess(input_file: str, output_file: str) -> None:
-    """Preprocess a C source file using GCC and save the result to a specified output file.
+    """Preprocess a C source file using GCC and saves the result to a specified output file.
 
     Args:
         input_file: Path to the source C file to preprocess.
@@ -70,11 +70,52 @@ def cfile_type(s: str) -> str:
         s: Path to the file as a string.
 
     Returns:
-        str: The original string if it represents a valid C source file.
+        The original string if it represents a valid C source file.
     """
     if not s.endswith(".c"):
         raise argparse.ArgumentTypeError(f"Not a valid C source file: {s!r}")
     return s
+
+
+def run_compiler_components(input_file: str, stage: str) -> None:
+    """Runs specified stages of the compiler based on input arguments.
+
+    This function preprocesses the input file and, depending on `stage`,
+    performs lexing, parsing, and/or code generation stages. It stops at the highest
+    requested stage:
+    - `lex`: Performs lexing only.
+    - `parse`: Performs lexing and parsing.
+    - `codegen`: Performs lexing, parsing, and code generation, stopping before code emission.
+
+    Raises:
+        subprocess.CalledProcessError: If the preprocessing step using GCC fails.
+        ValueError: If `stage` is not one of the expected values.
+
+    Args:
+        input_file: The path to the input C source file.
+        stage: Last stage to execute. Can be "lex", "parse" or "codegen".
+    """
+    # Define a dictionary to map stages to functions
+    stage_functions = {
+        "lex": exit(0),  # TODO: lexer
+        "parse": exit(0),  # TODO: parser
+        "codegen": exit(0),  # TODO: codegen
+    }
+
+    if stage not in stage_functions:
+        raise ValueError(
+            f"Invalid stage '{stage}'. Choose 'lex', 'parse', or 'codegen'."
+        )
+
+    logger.info(f"Running stage '{stage}' of the compiler...")
+    with NamedTemporaryFile(suffix=".i") as preprocessed_file:
+        try:
+            gcc_preprocess(input_file, preprocessed_file.name)
+        except subprocess.CalledProcessError as e:
+            return e.returncode
+
+        # Call the function associated with the specified stage
+        stage_functions[stage](preprocessed_file.name)
 
 
 def main():
@@ -116,6 +157,16 @@ def main():
     INPUT_FILE = args.input_file
     OUTPUT_FILE, _ = os.path.splitext(INPUT_FILE)
 
+    if args.lex or args.parse or args.codegen:
+        if args.lex:
+            stage = "lex"
+        elif args.parse:
+            stage = "parse"
+        elif args.codegen:
+            stage = "codegen"
+        run_compiler_components(INPUT_FILE, stage)
+        exit()
+
     # Execute compiler driver's commands
     with NamedTemporaryFile(suffix=".i") as preprocessed_file, NamedTemporaryFile(
         suffix=".s"
@@ -123,24 +174,11 @@ def main():
         try:
             gcc_preprocess(INPUT_FILE, preprocessed_file.name)
 
-            # Just for testing purposes
-            if args.lex:
-                # TODO: Run the lexer, but stop before parsing
-                lexer.run(preprocessed_file.name)
-                exit(0)
-            elif args.parse:
-                # TODO: Run the lexer and parser, but stop before assembly generation
-                exit(0)
-            elif args.codegen:
-                # TODO: Perform lexing, parsing, and assembly generation, but stop before code emission
-                exit(0)
-
             compile(preprocessed_file.name, assembly_file.name, use_gcc=True)
 
             gcc_assemble_and_link(assembly_file.name, OUTPUT_FILE)
         except subprocess.CalledProcessError as e:
             return e.returncode
-
     exit(0)
 
 
