@@ -97,9 +97,9 @@ def run_compiler_components(input_file: str, stage: str) -> None:
     """
     # Define a dictionary to map stages to functions
     stage_functions = {
-        "lex": exit(0),  # TODO: lexer
-        "parse": exit(0),  # TODO: parser
-        "codegen": exit(0),  # TODO: codegen
+        "lex": lexer.run,
+        "parse": lambda *args: exit("Parser not implemented."),
+        "codegen": lambda *args: exit("Code generation not implemented."),
     }
 
     if stage not in stage_functions:
