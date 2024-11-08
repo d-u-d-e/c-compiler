@@ -2,11 +2,17 @@ import re
 from loguru import logger
 
 
-def run(c_source_file: str) -> None:
+def run(c_source_file: str) -> list[tuple]:
     """Read in a C source file and produce a list of tokens.
 
     Args:
         c_source_file: path to the C source file
+
+    Returns:
+        A list of tokens where each token is represented as a tuple in the format (token_type, token_value).
+
+        - token_type: The category of the token (e.g., 'Identifier', 'Constant').
+        - token_value: The actual value of the token in the C source file.
     """
     logger.info(f"Running lexer on file '{c_source_file}...'")
 
@@ -59,3 +65,5 @@ def run(c_source_file: str) -> None:
             # If no match found, report the unmatched part
             error_segment = code[:20]  # First 20 chars of the unmatched segment
             raise ValueError(f"Unrecognized sequence: '{error_segment}'")
+
+    return output_tokens
