@@ -11,7 +11,7 @@ import lexer
 
 
 def gcc_preprocess(input_file: str, output_file: str) -> None:
-    """Preprocess a C source file using GCC and save the result to a specified output file.
+    """Preprocess a C source file using GCC and saves the result to a specified output file.
 
     Args:
         input_file: Path to the source C file to preprocess.
@@ -95,25 +95,27 @@ def run_compiler_components(input_file: str, stage: str) -> None:
         input_file: The path to the input C source file.
         stage: Last stage to execute. Can be "lex", "parse" or "codegen".
     """
+    # Define a dictionary to map stages to functions
+    stage_functions = {
+        "lex": exit(0),  # TODO: lexer
+        "parse": exit(0),  # TODO: parser
+        "codegen": exit(0),  # TODO: codegen
+    }
+
+    if stage not in stage_functions:
+        raise ValueError(
+            f"Invalid stage '{stage}'. Choose 'lex', 'parse', or 'codegen'."
+        )
+
+    logger.info(f"Running stage '{stage}' of the compiler...")
     with NamedTemporaryFile(suffix=".i") as preprocessed_file:
         try:
             gcc_preprocess(input_file, preprocessed_file.name)
         except subprocess.CalledProcessError as e:
             return e.returncode
 
-        if stage == "lex":
-            # TODO: Run the lexer, but stop before parsing
-            pass
-        elif stage == "parse":
-            # TODO: Run the lexer and parser, but stop before assembly generation
-            pass
-        elif stage == "codegen":
-            # TODO: Perform lexing, parsing, and assembly generation, but stop before code emission
-            pass
-        else:
-            raise ValueError(
-                f"The stage '{stage}' does not exist. Please choose between 'lex', 'parse' or 'codegen'."
-            )
+        # Call the function associated with the specified stage
+        stage_functions[stage](preprocessed_file.name)
 
 
 def main():
@@ -155,9 +157,15 @@ def main():
     INPUT_FILE = args.input_file
     OUTPUT_FILE, _ = os.path.splitext(INPUT_FILE)
 
-    if args.codegen or args.parse or args.lex:
-        run_compiler_components(INPUT_FILE, args)
-        exit(0)
+    if args.lex or args.parse or args.codegen:
+        if args.lex:
+            stage = "lex"
+        elif args.parse:
+            stage = "parse"
+        elif args.codegen:
+            stage = "codegen"
+        run_compiler_components(INPUT_FILE, stage)
+        exit()
 
     # Execute compiler driver's commands
     with NamedTemporaryFile(suffix=".i") as preprocessed_file, NamedTemporaryFile(
