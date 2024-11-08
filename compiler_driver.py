@@ -71,11 +71,11 @@ def cfile_type(s: str) -> str:
     return s
 
 
-def run_compiler_components(input_file: str, stage: str) -> None:
+def run_compiler_stages(input_file: str, stage: str) -> None:
     """Runs specified stages of the compiler based on input arguments.
 
     This function preprocesses the input file and, depending on `stage`,
-    performs lexing, parsing, and/or code generation stages. It stops at the highest
+    performs lexing, parsing, and code generation stages. It stops at the highest
     requested stage:
     - `lex`: Performs lexing only.
     - `parse`: Performs lexing and parsing.
@@ -84,32 +84,39 @@ def run_compiler_components(input_file: str, stage: str) -> None:
     Raises:
         subprocess.CalledProcessError: If the preprocessing step using GCC fails.
         ValueError: If `stage` is not one of the expected values.
+        NotImplementedError: If a stage has not yet be implemented. TODO: Remove after completing Chapter 1
 
     Args:
         input_file: The path to the input C source file.
         stage: Last stage to execute. Can be "lex", "parse" or "codegen".
     """
-    # Define a dictionary to map stages to functions
-    stage_functions = {
-        "lex": exit(0),  # TODO: lexer
-        "parse": exit(0),  # TODO: parser
-        "codegen": exit(0),  # TODO: codegen
-    }
-
-    if stage not in stage_functions:
+    stages = ["lex", "parse", "codegen"]
+    if stage not in stages:
         raise ValueError(
-            f"Invalid stage '{stage}'. Choose 'lex', 'parse', or 'codegen'."
+            f"Invalid stage '{stage}'. Please choose 'lex', 'parse', or 'codegen'."
         )
 
-    logger.info(f"Running stage '{stage}' of the compiler...")
     with NamedTemporaryFile(suffix=".i") as preprocessed_file:
         try:
             gcc_preprocess(input_file, preprocessed_file.name)
         except subprocess.CalledProcessError as e:
             return e.returncode
 
-        # Call the function associated with the specified stage
-        stage_functions[stage](preprocessed_file.name)
+        # Execute sequentially the stages
+        for current_stage in stages:
+            if current_stage == "lex":
+                # TODO: implement the lexer stage
+                raise NotImplementedError("Lexer stage is not implemented.")
+            elif current_stage == "parse":
+                # TODO: implement the parser stage
+                raise NotImplementedError("Parser stage is not implemented.")
+            elif current_stage == "codegen":
+                # TODO: implement the code generation stage
+                raise NotImplementedError("Code generation stage is not implemented.")
+
+            # Stop once we've reached the chosen stage
+            if current_stage == stage:
+                break
 
 
 def main():
@@ -158,8 +165,8 @@ def main():
             stage = "parse"
         elif args.codegen:
             stage = "codegen"
-        run_compiler_components(INPUT_FILE, stage)
-        exit()
+        run_compiler_stages(INPUT_FILE, stage)
+        exit(0)
 
     # Execute compiler driver's commands
     with NamedTemporaryFile(suffix=".i") as preprocessed_file, NamedTemporaryFile(
