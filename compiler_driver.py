@@ -1,3 +1,6 @@
+#!/usr/bin/env -S python3
+# -*- coding: utf-8 -*-
+
 import os
 import subprocess
 import argparse
