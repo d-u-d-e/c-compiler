@@ -20,10 +20,10 @@ class TreeNode:
         return self._children
 
     def iter_path_root(self):
-        TreeNode = self
-        while TreeNode is not None:
-            yield TreeNode
-            TreeNode = TreeNode.parent
+        v = self
+        while v is not None:
+            yield v
+            v = v.parent
 
     @property
     def parent(self):
@@ -49,11 +49,11 @@ class TreeNode:
             parent.children.append(self)
         self._parent = parent
 
-    def __check_loop(self, TreeNode: "TreeNode"):
-        if TreeNode is None:
+    def __check_loop(self, node: "TreeNode"):
+        if node is None:
             return
-        elif any(v is self for v in TreeNode.iter_path_root()):
-            raise RuntimeError("%r is ancestor of %r" % (self, TreeNode))
+        elif any(v is self for v in node.iter_path_root()):
+            raise RuntimeError("%r is ancestor of %r" % (self, node))
 
     def is_leaf(self) -> bool:
         return len(self._children) == 0
