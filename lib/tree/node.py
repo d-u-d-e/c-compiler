@@ -1,3 +1,11 @@
+from enum import Enum
+
+
+class TraversalMode(Enum):
+    DEPTH_FIRST = 0
+    BREADTH_FIRST = 1
+
+
 class TreeNode:
     def __init__(self, parent: "TreeNode" = None, **kwargs) -> None:
         self.__dict__.update(kwargs)
@@ -50,4 +58,14 @@ class TreeNode:
     def is_leaf(self) -> bool:
         return len(self._children) == 0
 
-
+    def traverse(self, mode: TraversalMode = TraversalMode.DEPTH_FIRST):
+        # generator
+        yield self
+        queue = [c for c in self.children]
+        while queue:
+            yield queue[0]
+            next_nodes = [c for c in queue[0].children]
+            if mode == TraversalMode.DEPTH_FIRST:
+                queue = next_nodes + queue[1:]
+            else:
+                queue = queue[1:] + next_nodes
