@@ -1,6 +1,7 @@
 import lib.tree.tree as tree
 import unittest
 
+
 class TestTreeOperations(unittest.TestCase):
     def setUp(self) -> None:
         # r
@@ -10,7 +11,7 @@ class TestTreeOperations(unittest.TestCase):
         # |__ 2
         # |__ 3
         #     |__ 6
-        
+
         root = tree.TreeNode(data="r")
         child_r_1 = tree.TreeNode(parent=root, data="r-1")
         tree.TreeNode(parent=root, data="r-2")
@@ -42,9 +43,7 @@ class TestTreeOperations(unittest.TestCase):
     def test_traverse_tree_breadth_first(self):
         # collect from 1
         collected_root = [
-            v.data
-            for v in self.t.traverse(mode=tree.TraversalMode.BREADTH_FIRST
-            )
+            v.data for v in self.t.traverse(mode=tree.TraversalMode.BREADTH_FIRST)
         ]
         self.assertListEqual(
             collected_root, ["r", "r-1", "r-2", "r-3", "1-4", "1-5", "3-6"]
@@ -72,6 +71,7 @@ class TestTreeOperations(unittest.TestCase):
 
     def test_is_leaf(self):
         self.assertTrue(self.child_1_4.is_leaf())
+
 
 if __name__ == "__main__":
     unittest.main()

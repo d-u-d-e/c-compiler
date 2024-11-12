@@ -30,14 +30,14 @@ class TreeNode:
         return self._parent
 
     @parent.setter
-    def parent(self, value: "TreeNode"):
-        if value and not isinstance(value, TreeNode):
+    def parent(self, parent: "TreeNode"):
+        if parent and not isinstance(parent, TreeNode):
             raise ValueError("Parent must be instance of TreeNode")
         # make sure we don't set the parent to a descendant of self
-        self.__check_loop(value)
+        self.__check_loop(parent)
         # update pointers
         self.__detach(self.parent)
-        self.__attach(value)
+        self.__attach(parent)
 
     def __detach(self, parent: "TreeNode"):
         if parent is not None:
