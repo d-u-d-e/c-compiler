@@ -9,6 +9,7 @@ authors = [
     "Luca Crema",
 ]
 readme = "README.md"
+packages = [{ include = "compiler" }]
 
 [tool.poetry.dependencies]
 python = "^3.12"
