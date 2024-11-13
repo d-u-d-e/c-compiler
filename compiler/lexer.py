@@ -4,6 +4,15 @@ from loguru import logger
 
 
 class Token:
+    """
+    A class for encapsulating a lexer token and its associated pattern.
+
+    This class encapsulates a token's type and its associated regular expression
+    pattern. The token type is defined by the nested `TokenType` enumeration, which
+    includes various token categories like identifiers, constants, and specific
+    keywords (e.g., 'int', 'void', 'return').
+    """
+
     class TokenType(Enum):
         Identifier = 0
         Constant = 1
