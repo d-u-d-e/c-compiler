@@ -56,23 +56,7 @@ def run(c_source_file: str) -> list[tuple[Token.TokenType, str]]:
         - token_type: The category of the token (e.g., 'Identifier', 'Constant').
         - token_value: The actual value of the token in the C source file.
     """
-    logger.info(f"Running lexer on file '{c_source_file}...'")
-
-    # token_patterns = {
-    #    "Identifier": re.compile(r"[a-zA-Z_]\w*\b"),
-    #    "Constant": re.compile(r"[0-9]+\b"),
-    #    "Open parenthesis": re.compile(r"\("),
-    #    "Close parenthesis": re.compile(r"\)"),
-    #    "Open brace": re.compile(r"{"),
-    #    "Close brace": re.compile(r"}"),
-    #    "Semicolon": re.compile(r";"),
-    # }
-    #
-    # token_keywords = {
-    #    "int keyword": re.compile(r"\bint\b"),
-    #    "void keyword": re.compile(r"\bvoid\b"),
-    #    "return keyword": re.compile(r"\breturn\b"),
-    # }
+    logger.info(f"Running lexer on file '{c_source_file}'...")
 
     output_tokens = []
 
