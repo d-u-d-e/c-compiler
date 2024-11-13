@@ -111,7 +111,7 @@ def run_compiler_stages(input_file: str, stage: str) -> None:
         # Execute sequentially the stages
         for current_stage in stages:
             if current_stage == "lex":
-                lexer.run()
+                lexer.run(preprocessed_file.name)
             elif current_stage == "parse":
                 # TODO: implement the parser stage
                 raise NotImplementedError("Parser stage is not implemented.")
