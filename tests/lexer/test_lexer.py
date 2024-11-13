@@ -1,7 +1,12 @@
 import os
 import unittest
+
+from loguru import logger
 from compiler import lexer
 from compiler.lexer import Token
+
+# Disable all log messages
+logger.remove()
 
 
 class TestLexerChapter01(unittest.TestCase):
