@@ -52,6 +52,7 @@ def parse_function(tokens: list[Token]) -> FunctionDefinition:
 def parse_program(tokens: list[Token]):
     parse_function(tokens)
     # no extra junk after function
+    # TODO: better!
     assert len(tokens) == 0
 
 
