@@ -4,6 +4,11 @@ from lib.tree.tree import Tree
 
 
 class ASTNode(TreeNode):
+    """Abstract class denoting a generic AST node.
+    All nodes shares the `get_node_repr` method to obtain a pretty
+    representation rooted at `self`.
+    """
+
     @abstractmethod
     def __init__(self, parent: "ASTNode" = None, **kwargs):
         super().__init__(parent, **kwargs)
@@ -20,6 +25,7 @@ class ASTNode(TreeNode):
         for child in self.children:
             pre_child = ""
             end_child = ""
+            # field names are like "name" and "body" in the FunctionDefinition node.
             if hasattr(child, "field_name"):
                 pre_child = getattr(child, "field_name") + "="
                 end_child = ",\n" if id(child) != id(self.children[-1]) else ""
@@ -31,18 +37,24 @@ class ASTNode(TreeNode):
 
 
 class Exp(ASTNode):
+    """Abstract class denoting a generic expression."""
+
     @abstractmethod
     def __init__(self, parent: ASTNode, **kwargs):
         super().__init__(parent, **kwargs)
 
 
 class Statement(ASTNode):
+    """Abstract class denoting a generic statement."""
+
     @abstractmethod
     def __init__(self, parent: ASTNode, **kwargs):
         super().__init__(parent, **kwargs)
 
 
 class Program(ASTNode):
+    """The program node is the root of the parse tree."""
+
     def __init__(self):
         super().__init__()
 
@@ -51,6 +63,10 @@ class Program(ASTNode):
 
 
 class Identifier(ASTNode):
+    """An identifier is a string, but is not a string literal.
+    It can be the name of a function or the name of a variable.
+    """
+
     def __init__(self, parent: ASTNode, name: str):
         super().__init__(parent)
         self.name = name
@@ -60,6 +76,10 @@ class Identifier(ASTNode):
 
 
 class FunctionDefinition(ASTNode):
+    """A function definition has a name identifier and a body.
+    Currently arguments are not supported.
+    """
+
     def __init__(self, parent: ASTNode, name: Identifier, body: Statement):
         super().__init__(parent)
         name.parent = self
@@ -72,6 +92,8 @@ class FunctionDefinition(ASTNode):
 
 
 class Return(Statement):
+    """A return statement is a statement."""
+
     def __init__(self, parent: ASTNode):
         super().__init__(parent)
 
@@ -80,6 +102,8 @@ class Return(Statement):
 
 
 class Constant(Exp):
+    """A constant node is an expression."""
+
     def __init__(self, parent: ASTNode, value):
         super().__init__(parent)
         self.value = value
@@ -88,9 +112,16 @@ class Constant(Exp):
         return f"Constant({self.value})"
 
 
-def ast_make_prettier(tree: Tree) -> str:
-    # for node in tree.traverse(TraversalMode.DEPTH_FIRST):
-    #    print(node)
+def ast_make_pretty_repr(tree: Tree) -> str:
+    """Gets a pretty string representation for a parse tree.
+
+    Args:
+        tree: the parse tree.
+
+    Returns:
+        The pretty string representation.
+    """
+
     fill = "   "
     root: ASTNode = tree.root
     return root.get_node_repr(0, fill)

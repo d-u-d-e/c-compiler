@@ -8,7 +8,7 @@ from compiler.parser.ast import (
     FunctionDefinition,
     Exp,
     Program,
-    ast_make_prettier
+    ast_make_pretty_repr
 )
 from compiler.lexer.lexer import Token
 from lib.tree.tree import Tree
@@ -124,7 +124,7 @@ def parse(tokens: list[Token]) -> Tree:
     """
     prog = parse_program(tokens)
     tree = Tree(prog)
-    loguru.logger.debug("Parse tree: \n" + ast_make_prettier(tree))
+    loguru.logger.debug("Parse tree: \n" + ast_make_pretty_repr(tree))
     return tree
 
 def parse_expression(tokens: list[Token]) -> Exp:
