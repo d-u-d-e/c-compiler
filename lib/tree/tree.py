@@ -7,6 +7,10 @@ class Tree:
             raise ValueError("Invalid root")
         self._root = root
 
+    @property
+    def root(self):
+        return self._root
+
     def __len__(self):
         return len([v for v in self.traverse()])
 
