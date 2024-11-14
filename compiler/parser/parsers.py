@@ -31,7 +31,7 @@ def expect_token_type(expected_type: Token.TokenType, tokens: list[Token]) -> To
     try:
         token = tokens.pop(0)
         if token.type != expected_type:
-            raise SyntaxError("Expected %r but found %r" % expected_type, token)
+            raise SyntaxError("Expected %r but found %r" % (expected_type, token))
         return token
     except IndexError:
         raise SyntaxError("Expected %r" % expected_type)
