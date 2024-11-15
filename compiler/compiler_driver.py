@@ -7,7 +7,8 @@ import argparse
 from tempfile import NamedTemporaryFile
 from loguru import logger
 
-from compiler import lexer
+from compiler.lexer import lexer
+from compiler.parser import parsers
 
 
 def gcc_preprocess(input_file: str, output_file: str) -> None:
@@ -109,12 +110,14 @@ def run_compiler_stages(input_file: str, stage: str) -> None:
             return e.returncode
 
         # Execute sequentially the stages
+        lex_out = []
         for current_stage in stages:
             if current_stage == "lex":
-                lexer.run(preprocessed_file.name)
+                lex_out = lexer.run(preprocessed_file.name)
             elif current_stage == "parse":
+                parsers.parse(lex_out)
                 # TODO: implement the parser stage
-                raise NotImplementedError("Parser stage is not implemented.")
+                # raise NotImplementedError("Parser stage is not implemented.")
             elif current_stage == "codegen":
                 # TODO: implement the code generation stage
                 raise NotImplementedError("Code generation stage is not implemented.")
