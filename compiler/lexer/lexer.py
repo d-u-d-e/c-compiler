@@ -45,19 +45,23 @@ class Token:
     }
 
     def __init__(self, token_type: TokenType) -> None:
-        self.type = token_type
+        self._type = token_type
         self._value = None
 
     @property
     def value(self):
         return self._value
 
+    @property
+    def type(self):
+        return self._type
+
     @value.setter
     def value(self, value):
         self._value = value
 
     def __repr__(self) -> str:
-        return self.type.name
+        return self._type.name
 
 
 def run(c_source_file: str) -> list[Token]:
