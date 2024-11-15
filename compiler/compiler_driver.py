@@ -1,10 +1,10 @@
 #!/usr/bin/env -S python3
-# -*- coding: utf-8 -*-
 
+import argparse
 import os
 import subprocess
-import argparse
 from tempfile import NamedTemporaryFile
+
 from loguru import logger
 
 from compiler import lexer
@@ -21,7 +21,7 @@ def gcc_preprocess(input_file: str, output_file: str) -> None:
     subprocess.run(["gcc", "-E", "-P", input_file, "-o", output_file], check=True)
 
 
-def compile(input_file: str, output_file: str, use_gcc: bool) -> None:
+def run_compiler(input_file: str, output_file: str, use_gcc: bool) -> None:
     """Compiles a preprocessed C source file into an assembly file.
 
     Args:
@@ -50,31 +50,6 @@ def compile(input_file: str, output_file: str, use_gcc: bool) -> None:
         # 3. Assembly generation
         # 4. Code emission
         pass
-
-
-def gcc_assemble_and_link(input_file: str, output_file: str) -> None:
-    """Assembles and links an assembly file to produce an executable.
-
-    Args:
-        input_file: Path to the the assembly file to be assembled and linked. The file should have a `.s` extension.
-        output_file: Path to the executable file.
-    """
-    logger.info(f"Assembling and linking assembly file '{input_file}'...")
-    subprocess.run(["gcc", input_file, "-o", output_file], check=True)
-
-
-def cfile_type(s: str) -> str:
-    """Checks if a given string is a valid C source file path.
-
-    Args:
-        s: Path to the file as a string.
-
-    Returns:
-        The original string if it represents a valid C source file.
-    """
-    if not s.endswith(".c"):
-        raise argparse.ArgumentTypeError(f"Not a valid C source file: {s!r}")
-    return s
 
 
 def run_compiler_stages(input_file: str, stage: str) -> None:
@@ -122,6 +97,31 @@ def run_compiler_stages(input_file: str, stage: str) -> None:
             # Stop once we've reached the chosen stage
             if current_stage == stage:
                 break
+
+
+def gcc_assemble_and_link(input_file: str, output_file: str) -> None:
+    """Assembles and links an assembly file to produce an executable.
+
+    Args:
+        input_file: Path to the the assembly file to be assembled and linked. The file should have a `.s` extension.
+        output_file: Path to the executable file.
+    """
+    logger.info(f"Assembling and linking assembly file '{input_file}'...")
+    subprocess.run(["gcc", input_file, "-o", output_file], check=True)
+
+
+def cfile_type(s: str) -> str:
+    """Checks if a given string is a valid C source file path.
+
+    Args:
+        s: Path to the file as a string.
+
+    Returns:
+        The original string if it represents a valid C source file.
+    """
+    if not s.endswith(".c"):
+        raise argparse.ArgumentTypeError(f"Not a valid C source file: {s!r}")
+    return s
 
 
 def main():
@@ -174,13 +174,14 @@ def main():
         exit(0)
 
     # Execute compiler driver's commands
-    with NamedTemporaryFile(suffix=".i") as preprocessed_file, NamedTemporaryFile(
-        suffix=".s"
-    ) as assembly_file:
+    with (
+        NamedTemporaryFile(suffix=".i") as preprocessed_file,
+        NamedTemporaryFile(suffix=".s") as assembly_file,
+    ):
         try:
             gcc_preprocess(INPUT_FILE, preprocessed_file.name)
 
-            compile(preprocessed_file.name, assembly_file.name, use_gcc=True)
+            run_compiler(preprocessed_file.name, assembly_file.name, use_gcc=True)
 
             gcc_assemble_and_link(assembly_file.name, OUTPUT_FILE)
         except subprocess.CalledProcessError as e:

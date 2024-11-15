@@ -2,6 +2,7 @@ import os
 import unittest
 
 from loguru import logger
+
 from compiler import lexer
 from compiler.lexer import Token
 
