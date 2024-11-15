@@ -7,6 +7,8 @@ import argparse
 from tempfile import NamedTemporaryFile
 from loguru import logger
 
+from compiler import lexer
+
 
 def gcc_preprocess(input_file: str, output_file: str) -> None:
     """Preprocess a C source file using GCC and saves the result to a specified output file.
@@ -43,6 +45,10 @@ def compile(input_file: str, output_file: str, use_gcc: bool) -> None:
         )
     else:
         # TODO: Implement your compiler
+        # 1. Lexer
+        # 2. Parser
+        # 3. Assembly generation
+        # 4. Code emission
         pass
 
 
@@ -105,8 +111,7 @@ def run_compiler_stages(input_file: str, stage: str) -> None:
         # Execute sequentially the stages
         for current_stage in stages:
             if current_stage == "lex":
-                # TODO: implement the lexer stage
-                raise NotImplementedError("Lexer stage is not implemented.")
+                lexer.run(preprocessed_file.name)
             elif current_stage == "parse":
                 # TODO: implement the parser stage
                 raise NotImplementedError("Parser stage is not implemented.")
