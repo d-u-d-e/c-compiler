@@ -9,6 +9,8 @@ from loguru import logger
 
 from compiler.lexer import lexer
 from compiler.parser import parsers
+from compiler.parser.ast import ast_make_pretty_repr
+from lib.tree.tree import Tree
 
 
 def gcc_preprocess(input_file: str, output_file: str) -> None:
@@ -111,15 +113,17 @@ def run_compiler_stages(input_file: str, stage: str) -> None:
 
         # Execute sequentially the stages
         lex_out = []
+        parse_tree: Tree = None
         for current_stage in stages:
             if current_stage == "lex":
                 lex_out = lexer.run(preprocessed_file.name)
             elif current_stage == "parse":
-                parsers.parse(lex_out)
-                # TODO: implement the parser stage
-                # raise NotImplementedError("Parser stage is not implemented.")
+                parse_tree = parsers.parse(lex_out)
+                # print parse tree
+                logger.debug("Parse tree:\n" + ast_make_pretty_repr(parse_tree))
             elif current_stage == "codegen":
                 # TODO: implement the code generation stage
+                # TODO: do something with the parse tree
                 raise NotImplementedError("Code generation stage is not implemented.")
 
             # Stop once we've reached the chosen stage

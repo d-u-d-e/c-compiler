@@ -1,5 +1,3 @@
-import loguru
-
 from compiler.parser.ast import (
     Constant,
     Identifier,
@@ -8,7 +6,6 @@ from compiler.parser.ast import (
     FunctionDefinition,
     Exp,
     Program,
-    ast_make_pretty_repr
 )
 from compiler.lexer.lexer import Token
 from lib.tree.tree import Tree
@@ -123,9 +120,8 @@ def parse(tokens: list[Token]) -> Tree:
         The parse tree rooted at the program node.
     """
     prog = parse_program(tokens)
-    tree = Tree(prog)
-    loguru.logger.debug("Parse tree: \n" + ast_make_pretty_repr(tree))
-    return tree
+    return Tree(prog)
+
 
 def parse_expression(tokens: list[Token]) -> Exp:
     """Parses a list of tokens representing a an expression and validates the syntax.
