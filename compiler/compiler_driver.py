@@ -106,7 +106,7 @@ def run_compiler_stages(input_file: str, stage: str) -> None:
         try:
             gcc_preprocess(input_file, preprocessed_file.name)
         except subprocess.CalledProcessError as e:
-            return e.returncode
+            exit(e.returncode)
 
         # Execute sequentially the stages
         for current_stage in stages:
