@@ -16,6 +16,8 @@ class TestLexerChapter01(unittest.TestCase):
     def test_multi_digit(self):
         path = os.path.join(f"{self.relative_path}/multi_digit.c")
         actual_list = lexer.run(path)
+        for i in range(len(actual_list)):
+            actual_list[i] = (actual_list[i].type, actual_list[i].value)
         expected_list = [
             (Token.TokenType.IntKeyword, "int"),
             (Token.TokenType.Identifier, "main"),
@@ -28,11 +30,14 @@ class TestLexerChapter01(unittest.TestCase):
             (Token.TokenType.Semicolon, ";"),
             (Token.TokenType.CloseBrace, "}"),
         ]
+
         self.assertListEqual(actual_list, expected_list)
 
     def test_newlines(self):
         path = os.path.join(f"{self.relative_path}/newlines.c")
         actual_list = lexer.run(path)
+        for i in range(len(actual_list)):
+            actual_list[i] = (actual_list[i].type, actual_list[i].value)
         expected_list = [
             (Token.TokenType.IntKeyword, "int"),
             (Token.TokenType.Identifier, "main"),
@@ -50,6 +55,8 @@ class TestLexerChapter01(unittest.TestCase):
     def test_no_newlines(self):
         path = os.path.join(f"{self.relative_path}/no_newlines.c")
         actual_list = lexer.run(path)
+        for i in range(len(actual_list)):
+            actual_list[i] = (actual_list[i].type, actual_list[i].value)
         expected_list = [
             (Token.TokenType.IntKeyword, "int"),
             (Token.TokenType.Identifier, "main"),
@@ -67,6 +74,8 @@ class TestLexerChapter01(unittest.TestCase):
     def test_return_int(self):
         path = os.path.join(f"{self.relative_path}/return_2.c")
         actual_list = lexer.run(path)
+        for i in range(len(actual_list)):
+            actual_list[i] = (actual_list[i].type, actual_list[i].value)
         expected_list = [
             (Token.TokenType.IntKeyword, "int"),
             (Token.TokenType.Identifier, "main"),
@@ -84,6 +93,8 @@ class TestLexerChapter01(unittest.TestCase):
     def test_spaces(self):
         path = os.path.join(f"{self.relative_path}/spaces.c")
         actual_list = lexer.run(path)
+        for i in range(len(actual_list)):
+            actual_list[i] = (actual_list[i].type, actual_list[i].value)
         expected_list = [
             (Token.TokenType.IntKeyword, "int"),
             (Token.TokenType.Identifier, "main"),
@@ -101,6 +112,8 @@ class TestLexerChapter01(unittest.TestCase):
     def test_tabs(self):
         path = os.path.join(f"{self.relative_path}/tabs.c")
         actual_list = lexer.run(path)
+        for i in range(len(actual_list)):
+            actual_list[i] = (actual_list[i].type, actual_list[i].value)
         expected_list = [
             (Token.TokenType.IntKeyword, "int"),
             (Token.TokenType.Identifier, "main"),
