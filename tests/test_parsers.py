@@ -7,7 +7,6 @@ from compiler.parser.ast import Constant, Identifier, Return
 from compiler.parser.parsers import (
     parse_identifier,
     parse_return_statement,
-    parse_statement,
 )
 
 logger.remove()
@@ -30,8 +29,7 @@ class TestParserChapter01(unittest.TestCase):
         self.assertEqual(actual_ast_node.parent, expected_ast_node.parent)
 
     def test_parse_invalid_identifier(self):
-        # Simulate an invalid list of tokens
-        token = Token(Token.TokenType.Constant)
+        token = Token(Token.TokenType.Constant)  # Invalid token type
         token.value = "test"
         tokens = [token]
 
@@ -39,16 +37,13 @@ class TestParserChapter01(unittest.TestCase):
             parse_identifier(tokens)
 
     def test_parse_valid_return_statement(self):
-        # Simulate a valid list of tokens
         tokens = [
             Token(Token.TokenType.ReturnKeyword),
             Token(Token.TokenType.Constant),
             Token(Token.TokenType.Semicolon),
         ]
 
-        # Generate output of the function
         actual_ast_node = parse_return_statement(tokens)
-        # Expected output AST node
         expected_ast_node = Return(parent=None)
 
         self.assertIsInstance(actual_ast_node, Return)
@@ -57,14 +52,12 @@ class TestParserChapter01(unittest.TestCase):
     def test_parse_valid_return_statement_child(self):
         const_ast_node = Token(Token.TokenType.Constant)
         const_ast_node.value = 1
-        # Simulate a valid list of tokens
         tokens = [
             Token(Token.TokenType.ReturnKeyword),
             const_ast_node,
             Token(Token.TokenType.Semicolon),
         ]
 
-        # Generate output of the function
         actual_ast_node = parse_return_statement(tokens)
 
         # Assert that the Return node has the Constant node as a child
@@ -73,7 +66,6 @@ class TestParserChapter01(unittest.TestCase):
         )
 
     def test_parse_invalid_return_statement_return_token(self):
-        # Simulate a valid list of tokens
         tokens = [
             Token(Token.TokenType.VoidKeyword),  # Invalid token
             Token(Token.TokenType.IntKeyword),
@@ -84,7 +76,6 @@ class TestParserChapter01(unittest.TestCase):
             parse_return_statement(tokens)
 
     def test_parse_invalid_return_statement_exp_token(self):
-        # Simulate a valid list of tokens
         tokens = [
             Token(Token.TokenType.ReturnKeyword),
             Token(Token.TokenType.IntKeyword),  # Invalid token
@@ -95,7 +86,6 @@ class TestParserChapter01(unittest.TestCase):
             parse_return_statement(tokens)
 
     def test_parse_invalid_return_statement_semicolon_token(self):
-        # Simulate an invalid list of tokens
         tokens = [
             Token(Token.TokenType.ReturnKeyword),
             Token(Token.TokenType.Constant),
