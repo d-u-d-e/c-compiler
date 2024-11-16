@@ -16,15 +16,14 @@ def expect_token_type(expected_type: Token.TokenType, tokens: list[Token]) -> To
 
     Args:
         expected_type: The expected token type.
-        tokens: A list of tokens.
+        tokens: List of tokens.
 
     Returns:
         The popped token.
 
     Raises:
-        SyntaxError: if the tokens list is empty or the expected token differs from the actual token.
+        SyntaxError: If the tokens list is empty or the actual token differs from the expected token.
     """
-
     try:
         token = tokens.pop(0)
         if token.type != expected_type:
@@ -38,7 +37,7 @@ def parse_identifier(tokens: list[Token]) -> Identifier:
     """Parses a list of tokens representing an identifier and validates the syntax.
 
     Args:
-        tokens: A list of tokens.
+        tokens: List of tokens.
 
     Returns:
         AST node representing the identifier.
@@ -56,7 +55,7 @@ def parse_statement(tokens: list[Token]) -> Statement:
     """Parses a list of tokens representing a statement and validates the syntax.
 
     Args:
-        tokens: A list of tokens.
+        tokens: List of tokens.
 
     Returns:
         AST node representing the statement.
@@ -70,12 +69,11 @@ def parse_function(tokens: list[Token]) -> FunctionDefinition:
     """Parses a list of tokens representing a function and validates the syntax.
 
     Args:
-        tokens: A list of tokens.
+        tokens: List of tokens.
 
     Returns:
         AST node representing the function.
     """
-
     # chapter 1
     # "int" <identifier> "(" "void" ")" "{" <statement> "}"
     expect_token_type(Token.TokenType.IntKeyword, tokens)
@@ -96,12 +94,11 @@ def parse_program(tokens: list[Token]) -> Program:
     """Parses a list of tokens representing a program and validates the syntax.
 
     Args:
-        tokens: A list of tokens.
+        tokens: List of tokens.
 
     Returns:
         AST node representing the program.
     """
-
     main_func = parse_function(tokens)
     # no extra junk after function
     # TODO: better!
@@ -111,10 +108,10 @@ def parse_program(tokens: list[Token]) -> Program:
     return prog
 
 
-def parse(tokens: list[Token]) -> Tree:
+def run(tokens: list[Token]) -> Tree:
     """Parses the list of tokens that compose the program.
     Args:
-        tokens: A list of tokens.
+        tokens: List of tokens.
 
     Returns:
         The parse tree rooted at the program node.
@@ -127,7 +124,7 @@ def parse_expression(tokens: list[Token]) -> Exp:
     """Parses a list of tokens representing a an expression and validates the syntax.
 
     Args:
-        tokens: A list of tokens.
+        tokens: List of tokens.
 
     Returns:
         AST node representing the expression.
@@ -142,7 +139,7 @@ def parse_return_statement(tokens: list) -> Return:
     """Parses a list of tokens representing a return statement and validates the syntax.
 
     Args:
-        tokens: A list of tokens.
+        tokens: List of tokens.
 
     Returns:
         AST node representing the Return statement.

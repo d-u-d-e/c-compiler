@@ -112,13 +112,13 @@ def run_compiler_stages(input_file: str, stage: str) -> None:
             return e.returncode
 
         # Execute sequentially the stages
-        lex_out = []
+        tokens = []
         parse_tree: Tree = None
         for current_stage in stages:
             if current_stage == "lex":
-                lex_out = lexer.run(preprocessed_file.name)
+                tokens = lexer.run(preprocessed_file.name)
             elif current_stage == "parse":
-                parse_tree = parsers.parse(lex_out)
+                parse_tree = parsers.run(tokens)
                 # print parse tree
                 logger.debug("Parse tree:\n" + ast_make_pretty_repr(parse_tree))
             elif current_stage == "codegen":
