@@ -42,7 +42,6 @@ def parse_identifier(tokens: list[Token]) -> Identifier:
     Returns:
         AST node representing the identifier.
     """
-
     # example:
     # tok.type = Token.TokenType.Identifier
     # tok.value == "main"
@@ -60,7 +59,6 @@ def parse_statement(tokens: list[Token]) -> Statement:
     Returns:
         AST node representing the statement.
     """
-
     # chapter 1: the statement is a return statement
     return parse_return_statement(tokens)
 
@@ -129,7 +127,6 @@ def parse_expression(tokens: list[Token]) -> Exp:
     Returns:
         AST node representing the expression.
     """
-
     # chapter 1: the expression is a constant
     tok = expect_token_type(Token.TokenType.Constant, tokens)
     return Constant(parent=None, value=tok.value)

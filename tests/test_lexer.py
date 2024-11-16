@@ -9,7 +9,6 @@ from compiler.compiler_driver import gcc_preprocess
 from compiler.lexer.lexer import Token
 import compiler.lexer.lexer as lexer
 
-# Disable all log messages
 logger.remove()
 
 

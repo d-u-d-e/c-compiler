@@ -1,5 +1,8 @@
 import lib.tree.tree as tree
 import unittest
+from loguru import logger
+
+logger.remove()
 
 
 class TestTreeOperations(unittest.TestCase):
