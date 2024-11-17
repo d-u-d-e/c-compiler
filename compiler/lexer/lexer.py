@@ -44,7 +44,7 @@ class Token:
         TokenType.ReturnKeyword: re.compile(r"\breturn\b"),
     }
 
-    def __init__(self, token_type: TokenType, value = None) -> None:
+    def __init__(self, token_type: TokenType, value=None) -> None:
         self._type = token_type
         self._value = value
 
@@ -64,7 +64,7 @@ class Token:
         return self._type.name
 
 
-def run(c_source_file: str) -> list[Token]:
+def run_lexer(c_source_file: str) -> list[Token]:
     """Reads in a C source file and produces a list of tokens.
 
     Args:
@@ -78,7 +78,7 @@ def run(c_source_file: str) -> list[Token]:
     """
     logger.info(f"Running lexer on file '{c_source_file}'...")
 
-    output_tokens = []
+    output_tokens: list[Token] = []
 
     with open(c_source_file, "r") as file:
         code = file.read()

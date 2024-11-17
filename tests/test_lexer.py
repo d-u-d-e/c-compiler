@@ -33,7 +33,8 @@ class TestLexerChapter01(unittest.TestCase):
         with NamedTemporaryFile(suffix=".i") as preprocessed_file:
             gcc_preprocess(path, preprocessed_file.name)
             tokens = [
-                (token.type, token.value) for token in lexer.run(preprocessed_file.name)
+                (token.type, token.value)
+                for token in lexer.run_lexer(preprocessed_file.name)
             ]
 
         self.assertListEqual(tokens, expected_list)
@@ -56,7 +57,8 @@ class TestLexerChapter01(unittest.TestCase):
         with NamedTemporaryFile(suffix=".i") as preprocessed_file:
             gcc_preprocess(path, preprocessed_file.name)
             tokens = [
-                (token.type, token.value) for token in lexer.run(preprocessed_file.name)
+                (token.type, token.value)
+                for token in lexer.run_lexer(preprocessed_file.name)
             ]
 
         self.assertListEqual(tokens, expected_list)
@@ -82,7 +84,7 @@ class TestLexerChapter01(unittest.TestCase):
             except subprocess.CalledProcessError as e:
                 return e.returncode
 
-            tokens = lexer.run(preprocessed_file.name)
+            tokens = lexer.run_lexer(preprocessed_file.name)
 
         for i in range(len(tokens)):
             tokens[i] = (tokens[i].type, tokens[i].value)
@@ -107,7 +109,8 @@ class TestLexerChapter01(unittest.TestCase):
         with NamedTemporaryFile(suffix=".i") as preprocessed_file:
             gcc_preprocess(path, preprocessed_file.name)
             tokens = [
-                (token.type, token.value) for token in lexer.run(preprocessed_file.name)
+                (token.type, token.value)
+                for token in lexer.run_lexer(preprocessed_file.name)
             ]
 
         self.assertListEqual(tokens, expected_list)
@@ -130,7 +133,8 @@ class TestLexerChapter01(unittest.TestCase):
         with NamedTemporaryFile(suffix=".i") as preprocessed_file:
             gcc_preprocess(path, preprocessed_file.name)
             tokens = [
-                (token.type, token.value) for token in lexer.run(preprocessed_file.name)
+                (token.type, token.value)
+                for token in lexer.run_lexer(preprocessed_file.name)
             ]
 
         self.assertListEqual(tokens, expected_list)
@@ -153,7 +157,8 @@ class TestLexerChapter01(unittest.TestCase):
         with NamedTemporaryFile(suffix=".i") as preprocessed_file:
             gcc_preprocess(path, preprocessed_file.name)
             tokens = [
-                (token.type, token.value) for token in lexer.run(preprocessed_file.name)
+                (token.type, token.value)
+                for token in lexer.run_lexer(preprocessed_file.name)
             ]
 
         self.assertListEqual(tokens, expected_list)
@@ -164,7 +169,7 @@ class TestLexerChapter01(unittest.TestCase):
         with self.assertRaises(ValueError):
             with NamedTemporaryFile(suffix=".i") as preprocessed_file:
                 gcc_preprocess(path, preprocessed_file.name)
-                lexer.run(preprocessed_file.name)
+                lexer.run_lexer(preprocessed_file.name)
 
     def test_backslash(self):
         path = os.path.join(self.test_samples_path, "invalid_lex", "backslash.c")
@@ -172,7 +177,7 @@ class TestLexerChapter01(unittest.TestCase):
         with self.assertRaises(ValueError):
             with NamedTemporaryFile(suffix=".i") as preprocessed_file:
                 gcc_preprocess(path, preprocessed_file.name)
-                lexer.run(preprocessed_file.name)
+                lexer.run_lexer(preprocessed_file.name)
 
     def test_backtick(self):
         path = os.path.join(self.test_samples_path, "invalid_lex", "backtick.c")
@@ -180,7 +185,7 @@ class TestLexerChapter01(unittest.TestCase):
         with self.assertRaises(ValueError):
             with NamedTemporaryFile(suffix=".i") as preprocessed_file:
                 gcc_preprocess(path, preprocessed_file.name)
-                lexer.run(preprocessed_file.name)
+                lexer.run_lexer(preprocessed_file.name)
 
     def test_invalid_identifier_2(self):
         path = os.path.join(
@@ -190,7 +195,7 @@ class TestLexerChapter01(unittest.TestCase):
         with self.assertRaises(ValueError):
             with NamedTemporaryFile(suffix=".i") as preprocessed_file:
                 gcc_preprocess(path, preprocessed_file.name)
-                lexer.run(preprocessed_file.name)
+                lexer.run_lexer(preprocessed_file.name)
 
     def test_invalid_identifier(self):
         path = os.path.join(
@@ -200,7 +205,7 @@ class TestLexerChapter01(unittest.TestCase):
         with self.assertRaises(ValueError):
             with NamedTemporaryFile(suffix=".i") as preprocessed_file:
                 gcc_preprocess(path, preprocessed_file.name)
-                lexer.run(preprocessed_file.name)
+                lexer.run_lexer(preprocessed_file.name)
 
 
 if __name__ == "__main__":

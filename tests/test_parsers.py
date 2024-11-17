@@ -3,95 +3,220 @@ import unittest
 from loguru import logger
 
 from compiler.lexer.lexer import Token
-from compiler.parser.ast import Constant, Identifier, Return
-from compiler.parser.parsers import (
-    parse_identifier,
-    parse_return_statement,
+from compiler.parser.ast import (
+    Constant,
+    FunctionDefinition,
+    Identifier,
+    Program,
+    Return,
+    Statement,
 )
+from compiler.parser.parsers import (
+    expect_token_type,
+    parse_expression,
+    parse_function,
+    parse_identifier,
+    parse_program,
+    parse_return_statement,
+    run_parser,
+)
+from lib.tree.tree import Tree
 
 logger.remove()
 
 
 class TestParserChapter01(unittest.TestCase):
-    def test_parse_valid_identifier(self):
-        # Simulate a valid list of tokens
-        token = Token(Token.TokenType.Identifier, "test")
+    valid_return_program_token_list = [
+        Token(Token.TokenType.IntKeyword),
+        Token(Token.TokenType.Identifier, "main"),
+        Token(Token.TokenType.OpenParenthesis),
+        Token(Token.TokenType.VoidKeyword),
+        Token(Token.TokenType.CloseParenthesis),
+        Token(Token.TokenType.OpenBrace),
+        Token(Token.TokenType.ReturnKeyword),
+        Token(Token.TokenType.Constant, 2),
+        Token(Token.TokenType.Semicolon),
+        Token(Token.TokenType.CloseBrace),
+    ]
+
+    def test_run_valid_token_list(self):
+        output = run_parser(self.valid_return_program_token_list.copy())
+
+        self.assertIsInstance(output, Tree)
+
+    def test_parse_program_valid_token_list(self):
+        output = parse_program(self.valid_return_program_token_list.copy())
+
+        self.assertIsInstance(output, Program)
+
+    def test_parse_program_child_check(self):
+        output = parse_program(self.valid_return_program_token_list.copy())
+
+        # The Program node should have only a FunctionDefinition node as a child
+        child = output.children.pop()
+
+        self.assertIsInstance(child, FunctionDefinition)
+
+    def test_parse_program_list_with_junk(self):
+        with self.assertRaises(SyntaxError):
+            list_with_junk = self.valid_return_program_token_list.copy()
+            list_with_junk.append(Token(Token.TokenType.CloseBrace))
+            parse_program(list_with_junk)
+
+    def test_parse_function_valid_token_list(self):
+        output = parse_function(self.valid_return_program_token_list.copy())
+
+        self.assertIsInstance(output, FunctionDefinition)
+        self.assertIsInstance(output.name, Identifier)
+        self.assertIsInstance(output.body, Return)
+
+    def test_parse_function_child_check(self):
+        output = parse_function(self.valid_return_program_token_list.copy())
+
+        # The Function node should have only a Statement node as a child
+        child = output.children.pop()
+
+        self.assertIsInstance(child, Statement)
+
+    def test_parse_function_invalid_token_list(self):
+        tokens = [
+            Token(Token.TokenType.Semicolon),  # Invalid token
+            Token(Token.TokenType.Identifier, "main"),
+            Token(Token.TokenType.OpenParenthesis),
+            Token(Token.TokenType.VoidKeyword),
+            Token(Token.TokenType.CloseParenthesis),
+            Token(Token.TokenType.OpenBrace),
+            Token(Token.TokenType.ReturnKeyword),
+            Token(Token.TokenType.Constant, 2),
+            Token(Token.TokenType.Semicolon),
+            Token(Token.TokenType.CloseBrace),
+        ]
+
+        with self.assertRaises(SyntaxError):
+            parse_function(tokens)
+
+    def test_parse_function_invalid_identifier(self):
+        tokens = [
+            Token(Token.TokenType.IntKeyword),
+            Token(Token.TokenType.OpenBrace),  # Invalid identifier
+            Token(Token.TokenType.OpenParenthesis),
+            Token(Token.TokenType.VoidKeyword),
+            Token(Token.TokenType.CloseParenthesis),
+            Token(Token.TokenType.OpenBrace),
+            Token(Token.TokenType.ReturnKeyword),
+            Token(Token.TokenType.Constant, 2),
+            Token(Token.TokenType.Semicolon),
+            Token(Token.TokenType.CloseBrace),
+        ]
+
+        with self.assertRaises(SyntaxError):
+            parse_function(tokens)
+
+    def test_parse_function_invalid_expression(self):
+        tokens = [
+            Token(Token.TokenType.IntKeyword),
+            Token(Token.TokenType.Identifier, "main"),
+            Token(Token.TokenType.OpenParenthesis),
+            Token(Token.TokenType.VoidKeyword),
+            Token(Token.TokenType.CloseParenthesis),
+            Token(Token.TokenType.OpenBrace),
+            Token(Token.TokenType.ReturnKeyword),
+            Token(Token.TokenType.VoidKeyword),  # Invalid expression
+            Token(Token.TokenType.Semicolon),
+            Token(Token.TokenType.CloseBrace),
+        ]
+
+        with self.assertRaises(SyntaxError):
+            parse_function(tokens)
+
+    def test_parse_return_statement_valid_token_list(self):
+        tokens = [
+            Token(Token.TokenType.ReturnKeyword),
+            Token(Token.TokenType.Constant),
+            Token(Token.TokenType.Semicolon),
+        ]
+
+        output = parse_return_statement(tokens)
+
+        self.assertIsInstance(output, Return)
+        self.assertEqual(output.parent, None)
+
+    def test_parse_return_statement_child_check(self):
+        tokens = [
+            Token(Token.TokenType.ReturnKeyword),
+            Token(Token.TokenType.Constant, 1),
+            Token(Token.TokenType.Semicolon),
+        ]
+
+        output = parse_return_statement(tokens)
+
+        # The Return node should have only a Constant node as a child
+        child = output.children.pop()
+
+        self.assertIsInstance(child, Constant)
+        self.assertEqual(child.value, 1)
+
+    def test_parse_return_statement_invalid_token_list(self):
+        tokens = [
+            Token(Token.TokenType.VoidKeyword),  # Invalid token
+            Token(Token.TokenType.Constant),
+            Token(Token.TokenType.Semicolon),
+        ]
+
+        with self.assertRaises(SyntaxError):
+            parse_return_statement(tokens)
+
+    def test_parse_identifier_valid_token_type(self):
+        token = Token(Token.TokenType.Identifier, "test_value")
         tokens = [token]
 
-        # Generate output of the function
-        actual_ast_node = parse_identifier(tokens)
-        # Expected output AST node
-        expected_ast_node = Identifier(parent=None, name=token.value)
+        output = parse_identifier(tokens)
 
-        self.assertIsInstance(actual_ast_node, Identifier)
-        self.assertEqual(actual_ast_node.name, expected_ast_node.name)
-        self.assertEqual(actual_ast_node.parent, expected_ast_node.parent)
+        self.assertIsInstance(output, Identifier)
+        self.assertEqual(output.parent, None)
+        self.assertEqual(output.name, "test_value")
 
-    def test_parse_invalid_identifier(self):
-        token = Token(Token.TokenType.Constant, "test")  # Invalid token type
-        tokens = [token]
+    def test_parse_identifier_invalid_token_type(self):
+        tokens = [Token(Token.TokenType.Constant)]
 
         with self.assertRaises(SyntaxError):
             parse_identifier(tokens)
 
-    def test_parse_valid_return_statement(self):
+    def test_parse_expression_valid_token_type(self):
+        token = Token(Token.TokenType.Constant, 1)
+        tokens = [token]
+
+        output: Constant = parse_expression(tokens)
+
+        self.assertIsInstance(output, Constant)
+        self.assertEqual(output.parent, None)
+        self.assertEqual(output.value, 1)
+
+    def test_parse_expression_invalid_token_type(self):
+        tokens = [Token(Token.TokenType.Identifier)]
+
+        with self.assertRaises(SyntaxError):
+            parse_expression(tokens)
+
+    def test_expect_token_type_valid_token(self):
+        tokens = [Token(Token.TokenType.IntKeyword)]
+
+        output = expect_token_type(Token.TokenType.IntKeyword, tokens)
+
+        self.assertIsInstance(output, Token)
+        self.assertEqual(output.type, Token.TokenType.IntKeyword)
+
+    def test_expect_token_type_invalid_token(self):
         tokens = [
             Token(Token.TokenType.ReturnKeyword),
-            Token(Token.TokenType.Constant),
-            Token(Token.TokenType.Semicolon),
-        ]
-
-        actual_ast_node = parse_return_statement(tokens)
-        expected_ast_node = Return(parent=None)
-
-        self.assertIsInstance(actual_ast_node, Return)
-        self.assertEqual(actual_ast_node.parent, expected_ast_node.parent)
-
-    def test_parse_valid_return_statement_child(self):
-        const_ast_node = Token(Token.TokenType.Constant)
-        const_ast_node.value = 1
-        tokens = [
-            Token(Token.TokenType.ReturnKeyword),
-            const_ast_node,
-            Token(Token.TokenType.Semicolon),
-        ]
-
-        actual_ast_node = parse_return_statement(tokens)
-
-        # Assert that the Return node has the Constant node as a child
-        self.assertTrue(
-            any(isinstance(child, Constant) for child in actual_ast_node.children)
-        )
-
-    def test_parse_invalid_return_statement_return_token(self):
-        tokens = [
-            Token(Token.TokenType.VoidKeyword),  # Invalid token
-            Token(Token.TokenType.IntKeyword),
-            Token(Token.TokenType.Semicolon),
         ]
 
         with self.assertRaises(SyntaxError):
-            parse_return_statement(tokens)
+            expect_token_type(Token.TokenType.IntKeyword, tokens)
 
-    def test_parse_invalid_return_statement_exp_token(self):
-        tokens = [
-            Token(Token.TokenType.ReturnKeyword),
-            Token(Token.TokenType.IntKeyword),  # Invalid token
-            Token(Token.TokenType.Semicolon),
-        ]
-
+    def test_expect_token_type_empty_list(self):
         with self.assertRaises(SyntaxError):
-            parse_return_statement(tokens)
-
-    def test_parse_invalid_return_statement_semicolon_token(self):
-        tokens = [
-            Token(Token.TokenType.ReturnKeyword),
-            Token(Token.TokenType.Constant),
-            Token(Token.TokenType.OpenBrace),  # Invalid token
-        ]
-
-        with self.assertRaises(SyntaxError):
-            parse_return_statement(tokens)
+            expect_token_type(Token.TokenType.IntKeyword, [])
 
 
 if __name__ == "__main__":
