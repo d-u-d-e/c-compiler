@@ -15,8 +15,7 @@ logger.remove()
 class TestParserChapter01(unittest.TestCase):
     def test_parse_valid_identifier(self):
         # Simulate a valid list of tokens
-        token = Token(Token.TokenType.Identifier)
-        token.value = "test"
+        token = Token(Token.TokenType.Identifier, "test")
         tokens = [token]
 
         # Generate output of the function
@@ -29,8 +28,7 @@ class TestParserChapter01(unittest.TestCase):
         self.assertEqual(actual_ast_node.parent, expected_ast_node.parent)
 
     def test_parse_invalid_identifier(self):
-        token = Token(Token.TokenType.Constant)  # Invalid token type
-        token.value = "test"
+        token = Token(Token.TokenType.Constant, "test")  # Invalid token type
         tokens = [token]
 
         with self.assertRaises(SyntaxError):

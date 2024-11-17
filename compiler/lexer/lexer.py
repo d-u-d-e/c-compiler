@@ -44,7 +44,7 @@ class Token:
         TokenType.ReturnKeyword: re.compile(r"\breturn\b"),
     }
 
-    def __init__(self, token_type: TokenType, value: None) -> None:
+    def __init__(self, token_type: TokenType, value = None) -> None:
         self._type = token_type
         self._value = value
 
