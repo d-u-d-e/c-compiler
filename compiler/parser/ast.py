@@ -16,7 +16,6 @@ class ASTNode(TreeNode):
     def __init__(self, parent: Optional["ASTNode"] = None, **kwargs):
         super().__init__(parent, **kwargs)
 
-    # TODO: can we make this more clean?
     def get_node_repr(self, level: int, fill: str, pre: str = "", end: str = "") -> str:
         """Gets the subtree representation rooted at `self`.
 
@@ -149,10 +148,10 @@ class Constant(Exp):
 
 
 def generate_pretty_ast_repr(tree: Tree) -> str:
-    """Gets a pretty string representation for a parse tree.
+    """Generates a pretty string representation for a parse tree.
 
     Args:
-        tree: the parse tree.
+        tree: The parse tree.
 
     Returns:
         The pretty string representation.

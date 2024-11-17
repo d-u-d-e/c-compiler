@@ -1,5 +1,6 @@
 import re
 from enum import Enum
+from typing import Any
 
 from loguru import logger
 
@@ -45,7 +46,7 @@ class Token:
         TokenType.ReturnKeyword: re.compile(r"\breturn\b"),
     }
 
-    def __init__(self, token_type: TokenType, value=None) -> None:
+    def __init__(self, token_type: TokenType, value: Any = None) -> None:
         self._type = token_type
         self._value = value
 
@@ -65,7 +66,7 @@ def run_lexer(c_source_file: str) -> list[Token]:
     """Reads in a C source file and produces a list of tokens.
 
     Args:
-        c_source_file: path to the C source file
+        c_source_file: Path to the C source file
 
     Raises:
         ValueError: If no match is found for a sequence in the source code

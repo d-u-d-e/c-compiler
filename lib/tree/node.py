@@ -12,7 +12,7 @@ class TreeNode:
         self.__dict__.update(kwargs)
         self._children: list[TreeNode] = []
         self._parent = None
-        # use the property setter for further checks
+        # Use the property setter for further checks
         if parent is not None:
             self.parent = parent
 
@@ -34,9 +34,9 @@ class TreeNode:
     def parent(self, parent: "TreeNode"):
         if parent and not isinstance(parent, TreeNode):
             raise ValueError("Parent must be instance of TreeNode")
-        # make sure we don't set the parent to a descendant of self
+        # Make sure we don't set the parent to a descendant of self
         self.__check_loop(parent)
-        # update pointers
+        # Update pointers
         self.__detach(self.parent)
         self.__attach(parent)
 
@@ -60,7 +60,16 @@ class TreeNode:
         return len(self._children) == 0
 
     def traverse(self, mode: TraversalMode = TraversalMode.DEPTH_FIRST):
-        # generator
+        """Traverse the tree rooted at `self` using `mode` as traversal mode.
+        This is a generator.
+
+        Args:
+            mode: The traversal mode employed to visit nodes.
+
+        Returns:
+            The next node to be visited.
+        """
+        # Generator that yields all the nodes of the tree based on a traversal mode.
         yield self
         queue = list(self.children)
         while queue:

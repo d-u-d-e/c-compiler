@@ -34,7 +34,7 @@ def parse_program(tokens: list[Token]) -> Program:
         AST node representing the program.
     """
     main_func = parse_function(tokens)
-    # no extra junk after function
+    # No extra junk after function
     if len(tokens) != 0:
         raise SyntaxError(
             f"Program contains junk after function '{main_func.name.name}'"
@@ -54,7 +54,7 @@ def parse_function(tokens: list[Token]) -> FunctionDefinition:
     Returns:
         AST node representing the function.
     """
-    # chapter 1
+    # By the end of chapter 1, we parse functions with the following form:
     # "int" <identifier> "(" "void" ")" "{" <statement> "}"
     expect_token_type(Token.TokenType.IntKeyword, tokens)
     identifier = parse_identifier(tokens)
@@ -79,7 +79,7 @@ def parse_statement(tokens: list[Token]) -> Statement:
     Returns:
         AST node representing the statement.
     """
-    # chapter 1: the statement is a return statement
+    # By the end of chapter 1, we parse only return statements.
     return parse_return_statement(tokens)
 
 
@@ -92,7 +92,8 @@ def parse_return_statement(tokens: list) -> Return:
     Returns:
         AST node representing the Return statement.
     """
-    # chapter 1: "return" <exp> ";"
+    # By the end of chapter 1 we parse the return statement as follows:
+    # "return" <exp> ";"
     expect_token_type(Token.TokenType.ReturnKeyword, tokens)
     expr = parse_expression(tokens)
     expect_token_type(Token.TokenType.Semicolon, tokens)
@@ -111,10 +112,7 @@ def parse_identifier(tokens: list[Token]) -> Identifier:
     Returns:
         AST node representing the identifier.
     """
-    # example:
-    # tok.type = Token.TokenType.Identifier
-    # tok.value == "main"
-    # -> Identifier(name="main", parent=None)
+
     tok = expect_token_type(Token.TokenType.Identifier, tokens)
     return Identifier(parent=None, name=tok.value)
 
@@ -128,7 +126,7 @@ def parse_expression(tokens: list[Token]) -> Exp:
     Returns:
         AST node representing the expression.
     """
-    # chapter 1: the expression is a constant
+    # By the end of chapter 1, the parser understands only constants as expressions.
     tok = expect_token_type(Token.TokenType.Constant, tokens)
     return Constant(parent=None, value=tok.value)
 

@@ -1,6 +1,8 @@
-import lib.tree.tree as tree
 import unittest
+
 from loguru import logger
+
+import lib.tree.tree as tree
 
 logger.remove()
 
@@ -28,23 +30,22 @@ class TestTreeOperations(unittest.TestCase):
         self.child_1_4 = child_1_4
         self.root = root
 
-    def test_tree_construction(self):
-        # check len
+    def test_tree_length(self):
         self.assertEqual(len(self.t), 7)
 
     def test_traverse_tree_depth_first(self):
-        # collect from 1
+        # Collect from 1
         collected_root = [v.data for v in self.t.traverse()]
         self.assertListEqual(
             collected_root, ["r", "r-1", "1-4", "1-5", "r-2", "r-3", "3-6"]
         )
 
-        # collect from 3
+        # Collect from 3
         collected_r_3 = [v.data for v in tree.Tree(self.child_r_3).traverse()]
         self.assertListEqual(collected_r_3, ["r-3", "3-6"])
 
     def test_traverse_tree_breadth_first(self):
-        # collect from 1
+        # Collect from 1
         collected_root = [
             v.data for v in self.t.traverse(mode=tree.TraversalMode.BREADTH_FIRST)
         ]
@@ -52,7 +53,7 @@ class TestTreeOperations(unittest.TestCase):
             collected_root, ["r", "r-1", "r-2", "r-3", "1-4", "1-5", "3-6"]
         )
 
-        # collect from 3
+        # Collect from 3
         collected_r_3 = [v.data for v in tree.Tree(self.child_r_3).traverse()]
         self.assertListEqual(collected_r_3, ["r-3", "3-6"])
 

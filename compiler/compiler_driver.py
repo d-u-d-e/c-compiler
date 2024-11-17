@@ -93,7 +93,6 @@ def run_compiler_stages(input_file: str, stage: str) -> None:
                 tokens = lexer.run_lexer(preprocessed_file.name)
             elif current_stage == "parse":
                 parse_tree = parsers.run_parser(tokens)
-                # print parse tree
                 logger.debug("Parse tree:\n" + generate_pretty_ast_repr(parse_tree))
             elif current_stage == "codegen":
                 # TODO: implement the code generation stage
