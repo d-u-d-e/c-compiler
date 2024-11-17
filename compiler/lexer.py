@@ -1,5 +1,6 @@
 import re
 from enum import Enum
+
 from loguru import logger
 
 
@@ -45,7 +46,7 @@ class Token:
         self.type = token_type
         self.pattern = (
             self.token_patterns[token_type]
-            if token_type in self.token_patterns.keys()
+            if token_type in self.token_patterns
             else self.token_keywords[token_type]
         )
 
@@ -69,7 +70,7 @@ def run(c_source_file: str) -> list[tuple[Token.TokenType, str]]:
 
     output_tokens = []
 
-    with open(c_source_file, "r") as file:
+    with open(c_source_file) as file:
         code = file.read()
 
     position = 0

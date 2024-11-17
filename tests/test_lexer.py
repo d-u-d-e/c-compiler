@@ -2,6 +2,7 @@ import os
 import unittest
 
 from loguru import logger
+
 from compiler import lexer
 from compiler.lexer import Token
 
@@ -10,7 +11,7 @@ logger.remove()
 
 
 class TestLexerChapter01(unittest.TestCase):
-    relative_path = "tests/lexer/test_samples/chapter01"
+    relative_path = "tests/test_samples/chapter01"
 
     def test_multi_digit(self):
         path = os.path.join(f"{self.relative_path}/multi_digit.c")
