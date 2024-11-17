@@ -97,10 +97,15 @@ class FunctionDefinition(ASTNode):
         super().__init__(parent)
         name.parent = self
         body.parent = self
+        self._name = name
         # used by get_node_repr to prefix the representation of each child with
         # "name=...", "body=..."
         setattr(name, "field_name", "name")
         setattr(body, "field_name", "body")
+
+    @property
+    def name(self) -> Identifier:
+        return self._name
 
     def __repr__(self) -> str:
         return "FunctionDefinition"

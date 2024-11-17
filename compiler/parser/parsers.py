@@ -99,8 +99,9 @@ def parse_program(tokens: list[Token]) -> Program:
     """
     main_func = parse_function(tokens)
     # no extra junk after function
-    # TODO: better!
-    assert len(tokens) == 0
+    if len(tokens) != 0:
+        raise SyntaxError(f"Program contains junk after function '{main_func.name.name}'")
+
     prog = Program()
     main_func.parent = prog
     return prog
