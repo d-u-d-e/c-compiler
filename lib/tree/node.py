@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Optional
 
 
 class TraversalMode(Enum):
@@ -7,9 +8,9 @@ class TraversalMode(Enum):
 
 
 class TreeNode:
-    def __init__(self, parent: "TreeNode" = None, **kwargs) -> None:
+    def __init__(self, parent: Optional["TreeNode"] = None, **kwargs) -> None:
         self.__dict__.update(kwargs)
-        self._children = []
+        self._children: list[TreeNode] = []
         self._parent = None
         # use the property setter for further checks
         if parent is not None:
@@ -61,10 +62,10 @@ class TreeNode:
     def traverse(self, mode: TraversalMode = TraversalMode.DEPTH_FIRST):
         # generator
         yield self
-        queue = [c for c in self.children]
+        queue = list(self.children)
         while queue:
             yield queue[0]
-            next_nodes = [c for c in queue[0].children]
+            next_nodes = list(queue[0].children)
             if mode == TraversalMode.DEPTH_FIRST:
                 queue = next_nodes + queue[1:]
             else:

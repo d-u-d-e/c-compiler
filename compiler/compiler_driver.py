@@ -1,16 +1,15 @@
 #!/usr/bin/env -S python3
-# -*- coding: utf-8 -*-
 
+import argparse
 import os
 import subprocess
-import argparse
 from tempfile import NamedTemporaryFile
+
 from loguru import logger
 
 from compiler.lexer import lexer
 from compiler.parser import parsers
 from compiler.parser.ast import generate_pretty_ast_repr
-from lib.tree.tree import Tree
 
 
 def gcc_preprocess(input_file: str, output_file: str) -> None:
@@ -24,7 +23,7 @@ def gcc_preprocess(input_file: str, output_file: str) -> None:
     subprocess.run(["gcc", "-E", "-P", input_file, "-o", output_file], check=True)
 
 
-def compile(input_file: str, output_file: str, use_gcc: bool) -> None:
+def run_compiler(input_file: str, output_file: str, use_gcc: bool) -> None:
     """Compiles a preprocessed C source file into an assembly file.
 
     Args:
@@ -55,6 +54,57 @@ def compile(input_file: str, output_file: str, use_gcc: bool) -> None:
         pass
 
 
+def run_compiler_stages(input_file: str, stage: str) -> None:
+    """Runs specified stages of the compiler based on input arguments.
+
+    This function preprocesses the input file and, depending on `stage`,
+    performs lexing, parsing, and code generation stages. It stops at the highest
+    requested stage:
+    - `lex`: Performs lexing only.
+    - `parse`: Performs lexing and parsing.
+    - `codegen`: Performs lexing, parsing, and code generation, stopping before code emission.
+
+    Args:
+        input_file: The path to the input C source file.
+        stage: Last stage to execute. Can be "lex", "parse" or "codegen".
+
+    Raises:
+        subprocess.CalledProcessError: If the preprocessing step using GCC fails.
+        ValueError: If `stage` is not one of the expected values.
+        NotImplementedError: If a stage has not yet be implemented. TODO: Remove after completing Chapter 1
+    """
+    stages = ["lex", "parse", "codegen"]
+    if stage not in stages:
+        raise ValueError(
+            f"Invalid stage '{stage}'. Please choose 'lex', 'parse', or 'codegen'."
+        )
+
+    with NamedTemporaryFile(suffix=".i") as preprocessed_file:
+        try:
+            gcc_preprocess(input_file, preprocessed_file.name)
+        except subprocess.CalledProcessError as e:
+            exit(e.returncode)
+
+        # Execute sequentially the stages
+        tokens = []
+        parse_tree = None
+        for current_stage in stages:
+            if current_stage == "lex":
+                tokens = lexer.run_lexer(preprocessed_file.name)
+            elif current_stage == "parse":
+                parse_tree = parsers.run_parser(tokens)
+                # print parse tree
+                logger.debug("Parse tree:\n" + generate_pretty_ast_repr(parse_tree))
+            elif current_stage == "codegen":
+                # TODO: implement the code generation stage
+                # TODO: do something with the parse tree
+                raise NotImplementedError("Code generation stage is not implemented.")
+
+            # Stop once we've reached the chosen stage
+            if current_stage == stage:
+                break
+
+
 def gcc_assemble_and_link(input_file: str, output_file: str) -> None:
     """Assembles and links an assembly file to produce an executable.
 
@@ -78,57 +128,6 @@ def cfile_type(s: str) -> str:
     if not s.endswith(".c"):
         raise argparse.ArgumentTypeError(f"Not a valid C source file: {s!r}")
     return s
-
-
-def run_compiler_stages(input_file: str, stage: str) -> None:
-    """Runs specified stages of the compiler based on input arguments.
-
-    This function preprocesses the input file and, depending on `stage`,
-    performs lexing, parsing, and code generation stages. It stops at the highest
-    requested stage:
-    - `lex`: Performs lexing only.
-    - `parse`: Performs lexing and parsing.
-    - `codegen`: Performs lexing, parsing, and code generation, stopping before code emission.
-
-    Raises:
-        subprocess.CalledProcessError: If the preprocessing step using GCC fails.
-        ValueError: If `stage` is not one of the expected values.
-        NotImplementedError: If a stage has not yet be implemented. TODO: Remove after completing Chapter 1
-
-    Args:
-        input_file: The path to the input C source file.
-        stage: Last stage to execute. Can be "lex", "parse" or "codegen".
-    """
-    stages = ["lex", "parse", "codegen"]
-    if stage not in stages:
-        raise ValueError(
-            f"Invalid stage '{stage}'. Please choose 'lex', 'parse', or 'codegen'."
-        )
-
-    with NamedTemporaryFile(suffix=".i") as preprocessed_file:
-        try:
-            gcc_preprocess(input_file, preprocessed_file.name)
-        except subprocess.CalledProcessError as e:
-            return e.returncode
-
-        # Execute sequentially the stages
-        tokens = []
-        parse_tree: Tree = None
-        for current_stage in stages:
-            if current_stage == "lex":
-                tokens = lexer.run_lexer(preprocessed_file.name)
-            elif current_stage == "parse":
-                parse_tree = parsers.run_parser(tokens)
-                # print parse tree
-                logger.debug("Parse tree:\n" + generate_pretty_ast_repr(parse_tree))
-            elif current_stage == "codegen":
-                # TODO: implement the code generation stage
-                # TODO: do something with the parse tree
-                raise NotImplementedError("Code generation stage is not implemented.")
-
-            # Stop once we've reached the chosen stage
-            if current_stage == stage:
-                break
 
 
 def main():
@@ -181,13 +180,14 @@ def main():
         exit(0)
 
     # Execute compiler driver's commands
-    with NamedTemporaryFile(suffix=".i") as preprocessed_file, NamedTemporaryFile(
-        suffix=".s"
-    ) as assembly_file:
+    with (
+        NamedTemporaryFile(suffix=".i") as preprocessed_file,
+        NamedTemporaryFile(suffix=".s") as assembly_file,
+    ):
         try:
             gcc_preprocess(INPUT_FILE, preprocessed_file.name)
 
-            compile(preprocessed_file.name, assembly_file.name, use_gcc=True)
+            run_compiler(preprocessed_file.name, assembly_file.name, use_gcc=True)
 
             gcc_assemble_and_link(assembly_file.name, OUTPUT_FILE)
         except subprocess.CalledProcessError as e:

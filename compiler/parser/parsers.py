@@ -1,13 +1,13 @@
+from compiler.lexer.lexer import Token
 from compiler.parser.ast import (
     Constant,
+    Exp,
+    FunctionDefinition,
     Identifier,
+    Program,
     Return,
     Statement,
-    FunctionDefinition,
-    Exp,
-    Program,
 )
-from compiler.lexer.lexer import Token
 from lib.tree.tree import Tree
 
 
@@ -65,7 +65,7 @@ def parse_function(tokens: list[Token]) -> FunctionDefinition:
     statement = parse_statement(tokens)
     expect_token_type(Token.TokenType.CloseBrace, tokens)
 
-    func = FunctionDefinition(parent=None, name=identifier, body=statement)
+    func = FunctionDefinition(parent=None, identifier=identifier, statement=statement)
     statement.parent = func
     return func
 
@@ -140,11 +140,11 @@ def expect_token_type(expected_type: Token.TokenType, tokens: list[Token]) -> To
         expected_type: The expected token type.
         tokens: List of tokens.
 
-    Returns:
-        The popped token.
-
     Raises:
         SyntaxError: If the tokens list is empty or the actual token differs from the expected token.
+
+    Returns:
+        The popped token.
     """
     try:
         token = tokens.pop(0)
@@ -152,4 +152,4 @@ def expect_token_type(expected_type: Token.TokenType, tokens: list[Token]) -> To
             raise SyntaxError(f"Expected {expected_type!r} but found {token!r}")
         return token
     except IndexError:
-        raise SyntaxError(f"Expected {expected_type!r}")
+        raise SyntaxError(f"Expected {expected_type!r}") from IndexError

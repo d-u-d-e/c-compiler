@@ -1,4 +1,4 @@
-from .node import TreeNode, TraversalMode
+from .node import TraversalMode, TreeNode
 
 
 class Tree:
@@ -12,7 +12,7 @@ class Tree:
         return self._root
 
     def __len__(self):
-        return len([v for v in self.traverse()])
+        return len(list(self.traverse()))
 
     def traverse(self, mode: TraversalMode = TraversalMode.DEPTH_FIRST):
         return self._root.traverse(mode)

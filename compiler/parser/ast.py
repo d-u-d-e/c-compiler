@@ -1,4 +1,6 @@
 from abc import abstractmethod
+from typing import Optional
+
 from lib.tree.node import TreeNode
 from lib.tree.tree import Tree
 
@@ -11,7 +13,7 @@ class ASTNode(TreeNode):
     """
 
     @abstractmethod
-    def __init__(self, parent: "ASTNode" = None, **kwargs):
+    def __init__(self, parent: Optional["ASTNode"] = None, **kwargs):
         super().__init__(parent, **kwargs)
 
     # TODO: can we make this more clean?
@@ -19,10 +21,13 @@ class ASTNode(TreeNode):
         """Gets the subtree representation rooted at `self`.
 
         Args:
-            level: integer representing the level of the subtree at this node.
-            fill: indicates which string to use as a filler to make the representation look pretty.
-            pre: prefix string inserted after the filler but before the node representation.
-            end: suffix string inserted after the children representations.
+            level: Integer representing the level of the subtree at this node.
+            fill: Indicates which string to use as a filler to make the representation look pretty.
+            pre: Prefix string inserted after the filler but before the node representation.
+            end: Suffix string inserted after the children representations.
+
+        Raises:
+            TypeError: If a child node is not an instance of `ASTNode`.
 
         Returns:
             The pretty string representation.
@@ -34,16 +39,18 @@ class ASTNode(TreeNode):
             return first_row + end
 
         childs = ""
-        child: ASTNode
         for child in self.children:
-            pre_child = ""
-            end_child = ""
-            # field names are like "name" and "body" in the FunctionDefinition node.
-            if hasattr(child, "field_name"):
-                pre_child = getattr(child, "field_name") + "="
-                end_child = ",\n" if id(child) != id(self.children[-1]) else ""
-            child_repr = child.get_node_repr(level + 1, fill, pre_child, end_child)
-            childs += child_repr
+            if isinstance(child, ASTNode):
+                pre_child = ""
+                end_child = ""
+                # field names are like "name" and "body" in the FunctionDefinition node.
+                if hasattr(child, "field_name"):
+                    pre_child = child.field_name + "="
+                    end_child = ",\n" if id(child) != id(self.children[-1]) else ""
+                child_repr = child.get_node_repr(level + 1, fill, pre_child, end_child)
+                childs += child_repr
+            else:
+                raise TypeError(f"Expected ASTNode, but got {type(child).__name__}")
 
         last_row = fill * level + ")" + end
         return f"{first_row}(\n{childs}\n{last_row}"
@@ -53,7 +60,7 @@ class Exp(ASTNode):
     """Abstract class denoting a generic expression."""
 
     @abstractmethod
-    def __init__(self, parent: ASTNode, **kwargs):
+    def __init__(self, parent: ASTNode | None, **kwargs):
         super().__init__(parent, **kwargs)
 
 
@@ -61,8 +68,9 @@ class Statement(ASTNode):
     """Abstract class denoting a generic statement."""
 
     @abstractmethod
-    def __init__(self, parent: ASTNode, **kwargs):
+    def __init__(self, parent: ASTNode | None, **kwargs):
         super().__init__(parent, **kwargs)
+        self.field_name: str | None = None
 
 
 class Program(ASTNode):
@@ -80,9 +88,10 @@ class Identifier(ASTNode):
     It can be the name of a function or the name of a variable.
     """
 
-    def __init__(self, parent: ASTNode, name: str):
+    def __init__(self, parent: ASTNode | None, name: str):
         super().__init__(parent)
         self.name = name
+        self.field_name: str | None = None
 
     def __repr__(self) -> str:
         return f"Identifier({self.name})"
@@ -93,16 +102,18 @@ class FunctionDefinition(ASTNode):
     Currently arguments are not supported.
     """
 
-    def __init__(self, parent: ASTNode, name: Identifier, body: Statement):
+    def __init__(
+        self, parent: ASTNode | None, identifier: Identifier, statement: Statement
+    ):
         super().__init__(parent)
-        name.parent = self
-        body.parent = self
-        self._name = name
-        self._body = body
+        identifier.parent = self
+        statement.parent = self
+        self._name = identifier
+        self._body = statement
         # used by get_node_repr to prefix the representation of each child with
         # "name=...", "body=..."
-        setattr(name, "field_name", "name")
-        setattr(body, "field_name", "body")
+        identifier.field_name = "name"
+        statement.field_name = "body"
 
     @property
     def name(self) -> Identifier:
@@ -119,7 +130,7 @@ class FunctionDefinition(ASTNode):
 class Return(Statement):
     """A return statement is a statement."""
 
-    def __init__(self, parent: ASTNode):
+    def __init__(self, parent: ASTNode | None):
         super().__init__(parent)
 
     def __repr__(self) -> str:
@@ -129,7 +140,7 @@ class Return(Statement):
 class Constant(Exp):
     """A constant node is an expression."""
 
-    def __init__(self, parent: ASTNode, value):
+    def __init__(self, parent: ASTNode | None, value):
         super().__init__(parent)
         self.value = value
 

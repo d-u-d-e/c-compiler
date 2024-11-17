@@ -1,5 +1,6 @@
 import re
 from enum import Enum
+
 from loguru import logger
 
 
@@ -56,10 +57,6 @@ class Token:
     def type(self):
         return self._type
 
-    @value.setter
-    def value(self, value):
-        self._value = value
-
     def __repr__(self) -> str:
         return self._type.name
 
@@ -80,7 +77,7 @@ def run_lexer(c_source_file: str) -> list[Token]:
 
     output_tokens: list[Token] = []
 
-    with open(c_source_file, "r") as file:
+    with open(c_source_file) as file:
         code = file.read()
 
     position = 0
