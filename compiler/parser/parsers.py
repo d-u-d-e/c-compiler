@@ -27,10 +27,10 @@ def expect_token_type(expected_type: Token.TokenType, tokens: list[Token]) -> To
     try:
         token = tokens.pop(0)
         if token.type != expected_type:
-            raise SyntaxError("Expected %r but found %r" % (expected_type, token))
+            raise SyntaxError(f"Expected {expected_type!r} but found {token!r}")
         return token
     except IndexError:
-        raise SyntaxError("Expected %r" % expected_type)
+        raise SyntaxError(f"Expected {expected_type!r}")
 
 
 def parse_identifier(tokens: list[Token]) -> Identifier:

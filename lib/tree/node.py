@@ -53,7 +53,7 @@ class TreeNode:
         if node is None:
             return
         elif any(v is self for v in node.iter_path_root()):
-            raise RuntimeError("%r is ancestor of %r" % (self, node))
+            raise RuntimeError(f"{self!r} is ancestor of {node!r}")
 
     def is_leaf(self) -> bool:
         return len(self._children) == 0

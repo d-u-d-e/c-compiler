@@ -9,7 +9,7 @@ from loguru import logger
 
 from compiler.lexer import lexer
 from compiler.parser import parsers
-from compiler.parser.ast import ast_make_pretty_repr
+from compiler.parser.ast import generate_pretty_ast_repr
 from lib.tree.tree import Tree
 
 
@@ -120,7 +120,7 @@ def run_compiler_stages(input_file: str, stage: str) -> None:
             elif current_stage == "parse":
                 parse_tree = parsers.run(tokens)
                 # print parse tree
-                logger.debug("Parse tree:\n" + ast_make_pretty_repr(parse_tree))
+                logger.debug("Parse tree:\n" + generate_pretty_ast_repr(parse_tree))
             elif current_stage == "codegen":
                 # TODO: implement the code generation stage
                 # TODO: do something with the parse tree

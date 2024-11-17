@@ -44,9 +44,9 @@ class Token:
         TokenType.ReturnKeyword: re.compile(r"\breturn\b"),
     }
 
-    def __init__(self, token_type: TokenType) -> None:
+    def __init__(self, token_type: TokenType, value: None) -> None:
         self._type = token_type
-        self._value = None
+        self._value = value
 
     @property
     def value(self):
@@ -74,10 +74,7 @@ def run(c_source_file: str) -> list[Token]:
         ValueError: If no match is found for a sequence in the source code
 
     Returns:
-        A list of tokens where each token is represented as a tuple in the format (token_type, token_value).
-
-        - token_type: The category of the token (e.g., 'Identifier', 'Constant').
-        - token_value: The actual value of the token in the C source file.
+        A list of tokens.
     """
     logger.info(f"Running lexer on file '{c_source_file}'...")
 
@@ -105,8 +102,7 @@ def run(c_source_file: str) -> list[Token]:
                         if re.fullmatch(pattern, match.group()):
                             token_type = keyword
                 token_value = match.group()
-                tok = Token(token_type)
-                tok.value = token_value
+                tok = Token(token_type, token_value)
                 output_tokens.append(tok)
                 # Move past the matched token
                 position = match.end()

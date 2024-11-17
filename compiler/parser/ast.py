@@ -5,6 +5,7 @@ from lib.tree.tree import Tree
 
 class ASTNode(TreeNode):
     """Abstract class denoting a generic AST node.
+
     All nodes shares the `get_node_repr` method to obtain a pretty
     representation rooted at `self`.
     """
@@ -14,8 +15,20 @@ class ASTNode(TreeNode):
         super().__init__(parent, **kwargs)
 
     # TODO: can we make this more clean?
-    def get_node_repr(self, level, fill, pre="", end="") -> str:
-        first_row = fill * level + pre + ("%r" % self)
+    def get_node_repr(self, level: int, fill: str, pre: str = "", end: str = "") -> str:
+        """Gets the subtree representation rooted at `self`.
+
+        Args:
+            level: integer representing the level of the subtree at this node.
+            fill: indicates which string to use as a filler to make the representation look pretty.
+            pre: prefix string inserted after the filler but before the node representation.
+            end: suffix string inserted after the children representations.
+
+        Returns:
+            The pretty string representation.
+        """
+
+        first_row = fill * level + pre + (f"{self!r}")
         if self.is_leaf():
             # don't open parenthesis
             return first_row + end
@@ -33,7 +46,7 @@ class ASTNode(TreeNode):
             childs += child_repr
 
         last_row = fill * level + ")" + end
-        return first_row + "(" + "\n" + childs + "\n" + last_row
+        return f"{first_row}(\n{childs}\n{last_row}"
 
 
 class Exp(ASTNode):
@@ -84,6 +97,8 @@ class FunctionDefinition(ASTNode):
         super().__init__(parent)
         name.parent = self
         body.parent = self
+        # used by get_node_repr to prefix the representation of each child with
+        # "name=...", "body=..."
         setattr(name, "field_name", "name")
         setattr(body, "field_name", "body")
 
@@ -112,7 +127,7 @@ class Constant(Exp):
         return f"Constant({self.value})"
 
 
-def ast_make_pretty_repr(tree: Tree) -> str:
+def generate_pretty_ast_repr(tree: Tree) -> str:
     """Gets a pretty string representation for a parse tree.
 
     Args:
