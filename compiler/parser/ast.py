@@ -15,6 +15,7 @@ class ASTNode(TreeNode):
     @abstractmethod
     def __init__(self, parent: Optional["ASTNode"] = None, **kwargs):
         super().__init__(parent, **kwargs)
+        self.field_name: str | None = None
 
     def get_node_repr(self, level: int, fill: str, pre: str = "", end: str = "") -> str:
         """Gets the subtree representation rooted at `self`.
@@ -37,22 +38,37 @@ class ASTNode(TreeNode):
             # don't open parenthesis
             return first_row + end
 
-        childs = ""
+        children_repr = ""
         for child in self.children:
             if isinstance(child, ASTNode):
                 pre_child = ""
                 end_child = ""
                 # field names are like "name" and "body" in the FunctionDefinition node.
-                if hasattr(child, "field_name"):
+                if child.field_name is not None:
                     pre_child = child.field_name + "="
                     end_child = ",\n" if id(child) != id(self.children[-1]) else ""
                 child_repr = child.get_node_repr(level + 1, fill, pre_child, end_child)
-                childs += child_repr
+                children_repr += child_repr
             else:
                 raise TypeError(f"Expected ASTNode, but got {type(child).__name__}")
 
         last_row = fill * level + ")" + end
-        return f"{first_row}(\n{childs}\n{last_row}"
+        return f"{first_row}(\n{children_repr}\n{last_row}"
+
+
+def generate_pretty_ast_repr(tree: Tree) -> str:
+    """Generates a pretty string representation for a parse tree.
+
+    Args:
+        tree: The parse tree.
+
+    Returns:
+        The pretty string representation.
+    """
+
+    fill = "   "
+    root: ASTNode = tree.root
+    return root.get_node_repr(0, fill)
 
 
 class Exp(ASTNode):
@@ -69,7 +85,6 @@ class Statement(ASTNode):
     @abstractmethod
     def __init__(self, parent: ASTNode | None, **kwargs):
         super().__init__(parent, **kwargs)
-        self.field_name: str | None = None
 
 
 class Program(ASTNode):
@@ -90,7 +105,6 @@ class Identifier(ASTNode):
     def __init__(self, parent: ASTNode | None, name: str):
         super().__init__(parent)
         self.name = name
-        self.field_name: str | None = None
 
     def __repr__(self) -> str:
         return f"Identifier({self.name})"
@@ -145,18 +159,3 @@ class Constant(Exp):
 
     def __repr__(self) -> str:
         return f"Constant({self.value})"
-
-
-def generate_pretty_ast_repr(tree: Tree) -> str:
-    """Generates a pretty string representation for a parse tree.
-
-    Args:
-        tree: The parse tree.
-
-    Returns:
-        The pretty string representation.
-    """
-
-    fill = "   "
-    root: ASTNode = tree.root
-    return root.get_node_repr(0, fill)
