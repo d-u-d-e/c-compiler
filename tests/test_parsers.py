@@ -189,7 +189,7 @@ class TestParserChapter01(unittest.TestCase):
         token = Token(Token.TokenType.Constant, 1)
         tokens = [token]
 
-        output: Constant = parse_expression(tokens)
+        output = parse_expression(tokens)
 
         self.assertIsInstance(output, Constant)
         self.assertEqual(output.parent, None)
