@@ -52,10 +52,10 @@ class TestParserChapter01(unittest.TestCase):
     def test_parse_program_child_check(self):
         output = parse_program(self.valid_return_program_token_list.copy())
 
-        # The Program node should have only a FunctionDefinition node as a child
-        child = output.children.pop()
-
-        self.assertIsInstance(child, FunctionDefinition)
+        self.assertTrue(
+            any(isinstance(child, FunctionDefinition) for child in output.children),
+            msg="The Program AST node should have a FunctionDefinition node as a child",
+        )
 
     def test_parse_program_list_with_junk(self):
         with self.assertRaises(SyntaxError):
@@ -73,10 +73,10 @@ class TestParserChapter01(unittest.TestCase):
     def test_parse_function_child_check(self):
         output = parse_function(self.valid_return_program_token_list.copy())
 
-        # The Function node should have only a Statement node as a child
-        child = output.children.pop()
-
-        self.assertIsInstance(child, Statement)
+        self.assertTrue(
+            any(isinstance(child, Statement) for child in output.children),
+            msg="The FunctionDefinition AST node should have a Statement node as a child",
+        )
 
     def test_parse_function_invalid_token_list(self):
         tokens = [
@@ -150,11 +150,14 @@ class TestParserChapter01(unittest.TestCase):
 
         output = parse_return_statement(tokens)
 
-        # The Return node should have only a Constant node as a child
-        child = output.children.pop()
+        self.assertTrue(
+            any(isinstance(child, Constant) for child in output.children),
+            msg="The Return AST node should have a Constant node as a child",
+        )
 
-        self.assertIsInstance(child, Constant)
-        self.assertEqual(child.value, 1)
+        for child in output.children:
+            if isinstance(child, Constant):
+                self.assertEqual(child.value, 1)
 
     def test_parse_return_statement_invalid_token_list(self):
         tokens = [
