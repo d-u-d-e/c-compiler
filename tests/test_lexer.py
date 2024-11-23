@@ -1,21 +1,22 @@
 import os
+import subprocess
 import unittest
+from tempfile import NamedTemporaryFile
 
 from loguru import logger
 
-from compiler import lexer
-from compiler.lexer import Token
+import compiler.lexer.lexer as lexer
+from compiler.compiler_driver import gcc_preprocess
+from compiler.lexer.lexer import Token
 
-# Disable all log messages
 logger.remove()
 
 
 class TestLexerChapter01(unittest.TestCase):
-    relative_path = "tests/test_samples/chapter01"
+    test_samples_path = "tests/test_samples/chapter_1"
 
     def test_multi_digit(self):
-        path = os.path.join(f"{self.relative_path}/multi_digit.c")
-        actual_list = lexer.run(path)
+        path = os.path.join(self.test_samples_path, "valid", "multi_digit.c")
         expected_list = [
             (Token.TokenType.IntKeyword, "int"),
             (Token.TokenType.Identifier, "main"),
@@ -28,11 +29,18 @@ class TestLexerChapter01(unittest.TestCase):
             (Token.TokenType.Semicolon, ";"),
             (Token.TokenType.CloseBrace, "}"),
         ]
-        self.assertListEqual(actual_list, expected_list)
+
+        with NamedTemporaryFile(suffix=".i") as preprocessed_file:
+            gcc_preprocess(path, preprocessed_file.name)
+            tokens = [
+                (token.type, token.value)
+                for token in lexer.run_lexer(preprocessed_file.name)
+            ]
+
+        self.assertListEqual(tokens, expected_list)
 
     def test_newlines(self):
-        path = os.path.join(f"{self.relative_path}/newlines.c")
-        actual_list = lexer.run(path)
+        path = os.path.join(self.test_samples_path, "valid", "newlines.c")
         expected_list = [
             (Token.TokenType.IntKeyword, "int"),
             (Token.TokenType.Identifier, "main"),
@@ -45,11 +53,18 @@ class TestLexerChapter01(unittest.TestCase):
             (Token.TokenType.Semicolon, ";"),
             (Token.TokenType.CloseBrace, "}"),
         ]
-        self.assertListEqual(actual_list, expected_list)
+
+        with NamedTemporaryFile(suffix=".i") as preprocessed_file:
+            gcc_preprocess(path, preprocessed_file.name)
+            tokens = [
+                (token.type, token.value)
+                for token in lexer.run_lexer(preprocessed_file.name)
+            ]
+
+        self.assertListEqual(tokens, expected_list)
 
     def test_no_newlines(self):
-        path = os.path.join(f"{self.relative_path}/no_newlines.c")
-        actual_list = lexer.run(path)
+        path = os.path.join(self.test_samples_path, "valid", "no_newlines.c")
         expected_list = [
             (Token.TokenType.IntKeyword, "int"),
             (Token.TokenType.Identifier, "main"),
@@ -62,11 +77,22 @@ class TestLexerChapter01(unittest.TestCase):
             (Token.TokenType.Semicolon, ";"),
             (Token.TokenType.CloseBrace, "}"),
         ]
-        self.assertListEqual(actual_list, expected_list)
+
+        with NamedTemporaryFile(suffix=".i") as preprocessed_file:
+            try:
+                gcc_preprocess(path, preprocessed_file.name)
+            except subprocess.CalledProcessError as e:
+                return e.returncode
+
+            tokens = lexer.run_lexer(preprocessed_file.name)
+
+        for i in range(len(tokens)):
+            tokens[i] = (tokens[i].type, tokens[i].value)
+
+        self.assertListEqual(tokens, expected_list)
 
     def test_return_int(self):
-        path = os.path.join(f"{self.relative_path}/return_2.c")
-        actual_list = lexer.run(path)
+        path = os.path.join(self.test_samples_path, "valid", "return_2.c")
         expected_list = [
             (Token.TokenType.IntKeyword, "int"),
             (Token.TokenType.Identifier, "main"),
@@ -79,11 +105,18 @@ class TestLexerChapter01(unittest.TestCase):
             (Token.TokenType.Semicolon, ";"),
             (Token.TokenType.CloseBrace, "}"),
         ]
-        self.assertListEqual(actual_list, expected_list)
+
+        with NamedTemporaryFile(suffix=".i") as preprocessed_file:
+            gcc_preprocess(path, preprocessed_file.name)
+            tokens = [
+                (token.type, token.value)
+                for token in lexer.run_lexer(preprocessed_file.name)
+            ]
+
+        self.assertListEqual(tokens, expected_list)
 
     def test_spaces(self):
-        path = os.path.join(f"{self.relative_path}/spaces.c")
-        actual_list = lexer.run(path)
+        path = os.path.join(self.test_samples_path, "valid", "spaces.c")
         expected_list = [
             (Token.TokenType.IntKeyword, "int"),
             (Token.TokenType.Identifier, "main"),
@@ -96,11 +129,18 @@ class TestLexerChapter01(unittest.TestCase):
             (Token.TokenType.Semicolon, ";"),
             (Token.TokenType.CloseBrace, "}"),
         ]
-        self.assertListEqual(actual_list, expected_list)
+
+        with NamedTemporaryFile(suffix=".i") as preprocessed_file:
+            gcc_preprocess(path, preprocessed_file.name)
+            tokens = [
+                (token.type, token.value)
+                for token in lexer.run_lexer(preprocessed_file.name)
+            ]
+
+        self.assertListEqual(tokens, expected_list)
 
     def test_tabs(self):
-        path = os.path.join(f"{self.relative_path}/tabs.c")
-        actual_list = lexer.run(path)
+        path = os.path.join(self.test_samples_path, "valid", "tabs.c")
         expected_list = [
             (Token.TokenType.IntKeyword, "int"),
             (Token.TokenType.Identifier, "main"),
@@ -113,7 +153,59 @@ class TestLexerChapter01(unittest.TestCase):
             (Token.TokenType.Semicolon, ";"),
             (Token.TokenType.CloseBrace, "}"),
         ]
-        self.assertListEqual(actual_list, expected_list)
+
+        with NamedTemporaryFile(suffix=".i") as preprocessed_file:
+            gcc_preprocess(path, preprocessed_file.name)
+            tokens = [
+                (token.type, token.value)
+                for token in lexer.run_lexer(preprocessed_file.name)
+            ]
+
+        self.assertListEqual(tokens, expected_list)
+
+    def test_at_sign(self):
+        path = os.path.join(self.test_samples_path, "invalid_lex", "at_sign.c")
+
+        with NamedTemporaryFile(suffix=".i") as preprocessed_file:
+            gcc_preprocess(path, preprocessed_file.name)
+            with self.assertRaises(ValueError):
+                lexer.run_lexer(preprocessed_file.name)
+
+    def test_backslash(self):
+        path = os.path.join(self.test_samples_path, "invalid_lex", "backslash.c")
+
+        with NamedTemporaryFile(suffix=".i") as preprocessed_file:
+            gcc_preprocess(path, preprocessed_file.name)
+            with self.assertRaises(ValueError):
+                lexer.run_lexer(preprocessed_file.name)
+
+    def test_backtick(self):
+        path = os.path.join(self.test_samples_path, "invalid_lex", "backtick.c")
+
+        with NamedTemporaryFile(suffix=".i") as preprocessed_file:
+            gcc_preprocess(path, preprocessed_file.name)
+            with self.assertRaises(ValueError):
+                lexer.run_lexer(preprocessed_file.name)
+
+    def test_invalid_identifier_2(self):
+        path = os.path.join(
+            self.test_samples_path, "invalid_lex", "invalid_identifier_2.c"
+        )
+
+        with NamedTemporaryFile(suffix=".i") as preprocessed_file:
+            gcc_preprocess(path, preprocessed_file.name)
+            with self.assertRaises(ValueError):
+                lexer.run_lexer(preprocessed_file.name)
+
+    def test_invalid_identifier(self):
+        path = os.path.join(
+            self.test_samples_path, "invalid_lex", "invalid_identifier.c"
+        )
+
+        with NamedTemporaryFile(suffix=".i") as preprocessed_file:
+            gcc_preprocess(path, preprocessed_file.name)
+            with self.assertRaises(ValueError):
+                lexer.run_lexer(preprocessed_file.name)
 
 
 if __name__ == "__main__":
