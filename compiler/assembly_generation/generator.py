@@ -7,9 +7,7 @@ def convert_expression(exp: parser_ast.Exp) -> assembly_ast.Operand:
     if isinstance(exp, parser_ast.Constant):
         return assembly_ast.Immediate(parent=None, value=exp.value)
     else:
-        raise RuntimeError(
-            f"Expression node {exp} cannot be converted to Assembly Operand node"
-        )
+        raise RuntimeError(f"Node {exp} cannot be converted to Assembly Operand node")
 
 
 def convert_statement(stmt: parser_ast.Statement) -> list[assembly_ast.Instruction]:
@@ -31,7 +29,7 @@ def convert_statement(stmt: parser_ast.Statement) -> list[assembly_ast.Instructi
         ]
     else:
         raise RuntimeError(
-            f"Statement node {stmt} cannot be converted to a list of Assembly instructions"
+            f"Node {stmt} cannot be converted into a list of Assembly instructions"
         )
 
 
