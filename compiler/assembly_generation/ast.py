@@ -105,7 +105,7 @@ class Immediate(Operand):
 
 
 class Register(Operand):
-    """An register is an operand. It has a name such as 'eax'."""
+    """A register is an operand. It has a name such as 'eax'."""
 
     def __init__(self, parent: ASTNode | None, name: str):
         super().__init__(parent)

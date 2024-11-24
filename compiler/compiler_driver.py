@@ -99,9 +99,6 @@ def run_compiler_stages(input_file: str, stage: str) -> None:
             elif current_stage == "codegen":
                 assembly_ast = generate_assembly_ast(parse_tree)
                 logger.debug("Assembly AST:\n" + generate_pretty_ast_repr(assembly_ast))
-                # TODO: implement the code generation stage
-                # TODO: do something with the parse tree
-                # raise NotImplementedError("Code generation stage is not implemented.")
 
             # Stop once we've reached the chosen stage
             if current_stage == stage:
