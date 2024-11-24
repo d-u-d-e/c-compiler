@@ -35,7 +35,7 @@ class ASTNode(TreeNode):
 
         first_row = fill * level + pre + (f"{self!r}")
         if self.is_leaf():
-            # don't open parenthesis
+            # Don't open parenthesis
             return first_row + end
 
         children_repr = ""
@@ -43,7 +43,7 @@ class ASTNode(TreeNode):
             if isinstance(child, ASTNode):
                 pre_child = ""
                 end_child = ",\n" if id(child) != id(self.children[-1]) else ""
-                # field names are like "name" and "body" in the FunctionDefinition node.
+                # Field names are like "name" and "body" in the Function node.
                 if child.field_name is not None:
                     pre_child = child.field_name + "="
                 child_repr = child.get_node_repr(level + 1, fill, pre_child, end_child)

@@ -10,23 +10,22 @@ def convert_expression(exp: parser_ast.Exp) -> assembly_ast.Operand:
         raise RuntimeError(f"Node {exp} cannot be converted to Assembly Operand node")
 
 
+def convert_return_statement(stmt: parser_ast.Return) -> list[assembly_ast.Instruction]:
+    # This assumes that the return expression is an assembly operand
+    return [
+        assembly_ast.Mov(
+            parent=None,
+            source=convert_expression(stmt.exp),
+            # Currently the only used register is eax
+            destination=assembly_ast.Register(parent=None, name="eax"),
+        ),
+        assembly_ast.Return(parent=None),
+    ]
+
+
 def convert_statement(stmt: parser_ast.Statement) -> list[assembly_ast.Instruction]:
     if isinstance(stmt, parser_ast.Return):
-        exp = stmt.children[0]
-        if len(stmt.children) != 1 or not isinstance(exp, parser_ast.Exp):
-            raise RuntimeError(
-                "Expected Expression node as the only child of the Return node"
-            )
-        # the following works only if exp can be represented as a single assembly operand
-        return [
-            assembly_ast.Mov(
-                parent=None,
-                source=convert_expression(exp),
-                # currently the only used register is eax
-                destination=assembly_ast.Register(parent=None, name="eax"),
-            ),
-            assembly_ast.Return(parent=None),
-        ]
+        return convert_return_statement(stmt)
     else:
         raise RuntimeError(
             f"Node {stmt} cannot be converted into a list of Assembly instructions"
@@ -34,29 +33,18 @@ def convert_statement(stmt: parser_ast.Statement) -> list[assembly_ast.Instructi
 
 
 def convert_identifier(func_name: parser_ast.Identifier) -> assembly_ast.Identifier:
-    return assembly_ast.Identifier(parent=None, name=func_name.name)
+    return assembly_ast.Identifier(parent=None, value=func_name.value)
 
 
-def convert_function_definition(func_def: parser_ast.FunctionDefinition):
+def convert_function_definition(func_def: parser_ast.Function):
     instructions = convert_statement(func_def.body)
     name = convert_identifier(func_def.name)
-    return assembly_ast.FunctionDefinition(
-        parent=None, body=instructions, identifier=name
-    )
+    return assembly_ast.Function(parent=None, body=instructions, identifier=name)
 
 
 def convert_program(prog: parser_ast.Program):
-    ast_prog = assembly_ast.Program()
-    prog_child = prog.children[0]
-    if (
-        not isinstance(prog_child, parser_ast.FunctionDefinition)
-        or len(prog.children) != 1
-    ):
-        raise RuntimeError(
-            "Expected a FunctionDefinition node as the only child of the Program node"
-        )
-    ast_func_def = convert_function_definition(prog_child)
-    ast_func_def.parent = ast_prog
+    ast_func_def = convert_function_definition(prog.function_definition)
+    ast_prog = assembly_ast.Program(ast_func_def)
     return ast_prog
 
 

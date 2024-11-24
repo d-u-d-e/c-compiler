@@ -19,28 +19,22 @@ class Operand(ASTNode):
         super().__init__(parent, **kwargs)
 
 
-class Program(ASTNode):
-    """The program node is the root of the parse tree."""
-
-    def __init__(self):
-        super().__init__()
-
-    def __repr__(self) -> str:
-        return "Program"
-
-
 class Identifier(ASTNode):
     """An identifier is a string, such as the name of a label."""
 
-    def __init__(self, parent: ASTNode | None, name: str):
+    def __init__(self, parent: ASTNode | None, value: str):
         super().__init__(parent)
-        self.name = name
+        self._value = value
+
+    @property
+    def value(self):
+        return self._value
 
     def __repr__(self) -> str:
-        return f"Identifier({self.name})"
+        return f"Identifier({self._value})"
 
 
-class FunctionDefinition(ASTNode):
+class Function(ASTNode):
     """A function definition has a name identifier and a list of instructions as its body."""
 
     def __init__(
@@ -66,7 +60,23 @@ class FunctionDefinition(ASTNode):
         return self._body
 
     def __repr__(self) -> str:
-        return "FunctionDefinition"
+        return "Function"
+
+
+class Program(ASTNode):
+    """The program node is the root of the parse tree."""
+
+    def __init__(self, func_def: Function):
+        super().__init__()
+        self._func_def = func_def
+        func_def.parent = self
+
+    @property
+    def function_definition(self) -> Function:
+        return self._func_def
+
+    def __repr__(self) -> str:
+        return "Program"
 
 
 class Return(Instruction):
@@ -98,10 +108,14 @@ class Immediate(Operand):
 
     def __init__(self, parent: ASTNode | None, value):
         super().__init__(parent)
-        self.value = value
+        self._value = value
+
+    @property
+    def value(self):
+        return self._value
 
     def __repr__(self) -> str:
-        return f"Immediate({self.value})"
+        return f"Immediate({self._value})"
 
 
 class Register(Operand):
@@ -109,7 +123,11 @@ class Register(Operand):
 
     def __init__(self, parent: ASTNode | None, name: str):
         super().__init__(parent)
-        self.name = name
+        self._name = name
+
+    @property
+    def name(self):
+        return self._name
 
     def __repr__(self) -> str:
-        return f"Register({self.name})"
+        return f"Register({self._name})"

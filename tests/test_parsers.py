@@ -5,7 +5,7 @@ from loguru import logger
 from compiler.lexer.lexer import Token
 from compiler.parser.ast import (
     Constant,
-    FunctionDefinition,
+    Function,
     Identifier,
     Program,
     Return,
@@ -53,8 +53,8 @@ class TestParserChapter01(unittest.TestCase):
         output = parse_program(self.valid_return_program_token_list.copy())
 
         self.assertTrue(
-            any(isinstance(child, FunctionDefinition) for child in output.children),
-            msg="The Program AST node should have a FunctionDefinition node as a child",
+            any(isinstance(child, Function) for child in output.children),
+            msg="The Program AST node should have a Function node as a child",
         )
 
     def test_parse_program_list_with_junk(self):
@@ -66,7 +66,7 @@ class TestParserChapter01(unittest.TestCase):
     def test_parse_function_valid_token_list(self):
         output = parse_function(self.valid_return_program_token_list.copy())
 
-        self.assertIsInstance(output, FunctionDefinition)
+        self.assertIsInstance(output, Function)
         self.assertIsInstance(output.name, Identifier)
         self.assertIsInstance(output.body, Return)
 
@@ -75,7 +75,7 @@ class TestParserChapter01(unittest.TestCase):
 
         self.assertTrue(
             any(isinstance(child, Statement) for child in output.children),
-            msg="The FunctionDefinition AST node should have a Statement node as a child",
+            msg="The Function AST node should have a Statement node as a child",
         )
 
     def test_parse_function_invalid_token_list(self):
@@ -177,7 +177,7 @@ class TestParserChapter01(unittest.TestCase):
 
         self.assertIsInstance(output, Identifier)
         self.assertEqual(output.parent, None)
-        self.assertEqual(output.name, "test_value")
+        self.assertEqual(output.value, "test_value")
 
     def test_parse_identifier_invalid_token_type(self):
         tokens = [Token(Token.TokenType.Constant)]
