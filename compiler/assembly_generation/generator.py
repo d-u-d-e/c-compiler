@@ -36,13 +36,13 @@ def convert_identifier(func_name: parser_ast.Identifier) -> assembly_ast.Identif
     return assembly_ast.Identifier(parent=None, value=func_name.value)
 
 
-def convert_function_definition(func_def: parser_ast.Function):
+def convert_function_definition(func_def: parser_ast.Function) -> assembly_ast.Function:
     instructions = convert_statement(func_def.body)
     name = convert_identifier(func_def.name)
     return assembly_ast.Function(parent=None, body=instructions, identifier=name)
 
 
-def convert_program(prog: parser_ast.Program):
+def convert_program(prog: parser_ast.Program) -> assembly_ast.Program:
     ast_func_def = convert_function_definition(prog.function_definition)
     ast_prog = assembly_ast.Program(ast_func_def)
     return ast_prog
