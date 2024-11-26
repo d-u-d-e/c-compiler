@@ -8,9 +8,9 @@ def convert_expression(exp: parser_ast.Exp) -> assembly_ast.Operand:
     Converts an expression into an Assembly operand.
 
     If the expression is a Constant, it returns an Immediate node with the same value.
-    If the expression is not a Constant, it raises a RuntimeError.
 
     :param exp: The expression to convert
+    :raises: NotImplementedError: If the expression type is not supported
     :return: An Assembly operand
     """
     if isinstance(exp, parser_ast.Constant):
@@ -29,7 +29,6 @@ def convert_return_statement(
 
     The instruction list consists of a single Mov instruction and a Return instruction.
     The Mov instruction moves the value of the return expression into the register eax.
-    The Return instruction returns from the current function.
 
     :param return_statement: The Return statement to convert
     :return: A list of Assembly instructions
@@ -50,12 +49,10 @@ def convert_statement(
     statement: parser_ast.Statement,
 ) -> list[assembly_ast.Instruction]:
     """
-    Converts a Statement node into a list of Assembly instructions.
-
-    If the statement is a Return statement, it calls convert_return_statement
-    to convert it into a list of Assembly instructions.
+    Converts a parser Statement node into a list of Assembly instructions.
 
     :param statement: The Statement node to convert
+    :raises: NotImplementedError: If the statement type is not supported
     :return: A list of Assembly instructions
     """
 
@@ -83,11 +80,10 @@ def convert_function_definition(func_def: parser_ast.Function) -> assembly_ast.F
 
     This function takes a Function node, converts its body Statement into a list
     of Assembly instructions, and its name Identifier into an assembly Identifier
-    node. It then creates a new assembly Function node with the converted body and
-    identifier, and returns it.
+    node.
 
     :param func_def: The parser Function node to convert
-    :return: An assembly Function node with the same function name and body
+    :return: An assembly Function node
     """
     instructions = convert_statement(func_def.body)
     name = convert_identifier(func_def.name)
@@ -103,7 +99,7 @@ def convert_program(prog: parser_ast.Program) -> assembly_ast.Program:
     Program node.
 
     :param prog: The parser Program node to convert
-    :return: An assembly Program node with the converted function definition
+    :return: An assembly Program node
     """
     ast_func_def = convert_function_definition(prog.function_definition)
     ast_prog = assembly_ast.Program(ast_func_def)
@@ -115,7 +111,8 @@ def generate_assembly_ast(parse_tree: Tree) -> Tree:
     Converts a parse tree rooted at a Program node into an Assembly AST tree.
 
     :param parse_tree: The parse tree to convert
-    :return: An Assembly AST tree with the converted function definition
+    :raises: TypeError: If the root node of the parse tree is not a Program node
+    :return: An Assembly AST tree
     """
     if not isinstance(parse_tree.root, parser_ast.Program):
         raise TypeError(
