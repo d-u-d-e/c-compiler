@@ -10,15 +10,13 @@ def convert_expression(exp: parser_ast.Exp) -> assembly_ast.Operand:
     If the expression is a Constant, it returns an Immediate node with the same value.
 
     :param exp: The expression to convert
-    :raises: NotImplementedError: If the expression type is not supported
+    :raises: RuntimeError: If the expression type is not supported
     :return: An Assembly operand
     """
     if isinstance(exp, parser_ast.Constant):
         return assembly_ast.Immediate(parent=None, value=exp.value)
     else:
-        raise NotImplementedError(
-            f"Node '{exp}' cannot be converted to Assembly Operand node"
-        )
+        raise RuntimeError(f"Node '{exp}' cannot be converted to Assembly Operand node")
 
 
 def convert_return_statement(
@@ -52,14 +50,14 @@ def convert_statement(
     Converts a parser Statement node into a list of Assembly instructions.
 
     :param statement: The Statement node to convert
-    :raises: NotImplementedError: If the statement type is not supported
+    :raises: RuntimeError: If the statement type is not supported
     :return: A list of Assembly instructions
     """
 
     if isinstance(statement, parser_ast.Return):
         return convert_return_statement(statement)
     else:
-        raise NotImplementedError(
+        raise RuntimeError(
             f"Node '{statement}' cannot be converted into a list of Assembly instructions"
         )
 
