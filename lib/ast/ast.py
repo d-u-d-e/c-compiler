@@ -56,14 +56,19 @@ class ASTNode(TreeNode):
 
 
 def generate_pretty_ast_repr(tree: Tree) -> str:
-    """Generates a pretty string representation for a parse tree.
+    """Generates a pretty string representation for an abstract syntax tree.
 
     Args:
-        tree: The parse tree.
+        tree: A tree of AST nodes.
+
+    Raises:
+        TypeError: If the root of the tree is not an `ASTNode`.
 
     Returns:
-        The pretty string representation.
+        A formatted string representation of the tree.
     """
+    if not isinstance(tree.root, ASTNode):
+        raise TypeError("Tree root must be an ASTNode.")
 
     fill = "   "
     root: ASTNode = tree.root
