@@ -1,3 +1,5 @@
+import os
+
 import compiler.assembly_generation.ast as assembly_ast
 import compiler.parser.ast as parser_ast
 from lib.tree.tree import Tree
@@ -118,3 +120,57 @@ def convert_identifier(func_name: parser_ast.Identifier) -> assembly_ast.Identif
     :return: An assembly Identifier node with the same value
     """
     return assembly_ast.Identifier(parent=None, value=func_name.value)
+
+
+def emit_assembly_code(input_tree: Tree, input_file: str):
+    """Writes the output assembly code into a .s file stored in the folder compiler/assembly_generation/output/.
+
+    Args:
+        tree: Assembly AST to be translated in assembly code.
+        input_file: String containing the file path of the source code in c.
+
+    Raises:
+        AttributeError: If a node does not feature the required assembly representation.
+    """
+    filename = os.path.splitext(os.path.basename(input_file))[0]
+    output_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "output", f"{filename}.s"
+    )
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    # Calling the depth-first traversal of the assembly AST
+    nodes = input_tree.traverse()
+    nodes_iter = iter(nodes)
+    to_print = ""
+    with open(output_path, "w") as f:
+        for node in nodes_iter:
+            if isinstance(node, assembly_ast.Function):
+                to_print += f"\tglobl.\t{node.name.value}\n"
+                to_print += f"{node.name.value}:\n"
+                for instruction in node.body:
+                    # Defining the syntax for an instruction in assembly
+                    if callable(getattr(instruction, "assembly_repr", None)):
+                        instr_line = f"{instruction.assembly_repr()}\t"  # type: ignore
+                    else:
+                        raise AttributeError(
+                            f'Method "assembly_repr()" not found for object of type {type(instruction).__name__}.'
+                        )
+                    if instruction.is_leaf():
+                        # Removing the ending tab
+                        instr_line = instr_line[:-1]
+                    else:
+                        for operand in instruction.children:
+                            if callable(getattr(operand, "assembly_repr", None)):
+                                instr_line += f"${operand.assembly_repr()}, "  # type: ignore
+                            else:
+                                raise AttributeError(
+                                    f'Method "assembly_repr()" not found for object of type {type(operand).__name__}.'
+                                )
+                            next(nodes_iter, None)
+                        # Removing the ending ", " characters
+                        instr_line = instr_line[:-2]
+                    to_print += f"\t{instr_line}\n"
+                    next(nodes_iter, None)
+                next(nodes_iter, None)
+        to_print += '\t.section .note.GNU-stack,"",@progbits'
+        f.write(to_print)

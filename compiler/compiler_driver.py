@@ -7,7 +7,10 @@ from tempfile import NamedTemporaryFile
 
 from loguru import logger
 
-from compiler.assembly_generation.generator import generate_assembly_ast
+from compiler.assembly_generation.generator import (
+    emit_assembly_code,
+    generate_assembly_ast,
+)
 from compiler.lexer import lexer
 from compiler.parser import parsers
 from lib.ast.ast import generate_pretty_ast_repr
@@ -64,7 +67,7 @@ def run_compiler_stages(input_file: str, stage: str) -> None:
     requested stage:
     - `lex`: Performs lexing only.
     - `parse`: Performs lexing and parsing.
-    - `codegen`: Performs lexing, parsing, and code generation, stopping before code emission.
+    - `codegen`: Performs lexing, parsing, and code generation.
 
     Args:
         input_file: The path to the input C source file.
@@ -99,6 +102,7 @@ def run_compiler_stages(input_file: str, stage: str) -> None:
             elif current_stage == "codegen":
                 assembly_ast = generate_assembly_ast(parse_tree)
                 logger.debug("Assembly AST:\n" + generate_pretty_ast_repr(assembly_ast))
+                emit_assembly_code(assembly_ast, input_file)
 
             # Stop once we've reached the chosen stage
             if current_stage == stage:
