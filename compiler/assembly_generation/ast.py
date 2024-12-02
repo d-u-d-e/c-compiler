@@ -10,11 +10,6 @@ class Instruction(ASTNode):
     def __init__(self, parent: ASTNode | None, **kwargs):
         super().__init__(parent, **kwargs)
 
-    @abstractmethod
-    def assembly_repr(self):
-        """Should return the assembly mnemonic for the instruction"""
-        pass
-
 
 class Operand(ASTNode):
     """Abstract class denoting a generic assembly operand."""
@@ -22,11 +17,6 @@ class Operand(ASTNode):
     @abstractmethod
     def __init__(self, parent: ASTNode | None, **kwargs):
         super().__init__(parent, **kwargs)
-
-    @abstractmethod
-    def assembly_repr(self):
-        """Should return assembly code representation of the operand"""
-        pass
 
 
 class Identifier(ASTNode):
@@ -98,9 +88,6 @@ class Return(Instruction):
     def __repr__(self) -> str:
         return "Return"
 
-    def assembly_repr(self) -> str:
-        return "ret"
-
 
 class Mov(Instruction):
     """A mov instruction is an assembly instruction."""
@@ -114,9 +101,6 @@ class Mov(Instruction):
 
     def __repr__(self) -> str:
         return "Mov"
-
-    def assembly_repr(self) -> str:
-        return "movl"
 
 
 class Immediate(Operand):
@@ -133,9 +117,6 @@ class Immediate(Operand):
     def __repr__(self) -> str:
         return f"Immediate({self._value})"
 
-    def assembly_repr(self) -> str:
-        return f"{self._value}"
-
 
 class Register(Operand):
     """A register is an operand. It has a name such as 'eax'."""
@@ -150,6 +131,3 @@ class Register(Operand):
 
     def __repr__(self) -> str:
         return f"Register({self._name})"
-
-    def assembly_repr(self) -> str:
-        return f"{self._name}"
