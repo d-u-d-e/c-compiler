@@ -11,7 +11,6 @@ from compiler.assembly_generation.generator import generate_assembly_ast
 from compiler.lexer import lexer
 from compiler.parser import parsers
 from lib.ast.ast import generate_pretty_ast_repr
-from lib.tree.tree import Tree
 
 
 def gcc_preprocess(input_file: str, output_file: str) -> None:
@@ -89,7 +88,7 @@ def run_compiler_stages(input_file: str, stage: str) -> None:
 
         # Execute sequentially the stages
         tokens = []
-        parse_tree = Tree(root=None)
+        parse_tree = None
         for current_stage in stages:
             if current_stage == "lex":
                 tokens = lexer.run_lexer(preprocessed_file.name)
@@ -97,6 +96,7 @@ def run_compiler_stages(input_file: str, stage: str) -> None:
                 parse_tree = parsers.run_parser(tokens)
                 logger.debug("Parse tree:\n" + generate_pretty_ast_repr(parse_tree))
             elif current_stage == "codegen":
+                assert parse_tree is not None
                 assembly_ast = generate_assembly_ast(parse_tree)
                 logger.debug("Assembly AST:\n" + generate_pretty_ast_repr(assembly_ast))
 

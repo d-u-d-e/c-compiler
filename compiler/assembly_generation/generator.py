@@ -15,8 +15,8 @@ def generate_assembly_ast(parse_tree: Tree) -> Tree:
         raise TypeError(
             f"The root node of the parse tree '{parse_tree}' is not a Program node"
         )
-    prog = convert_program(parse_tree.root)
-    return Tree(prog)
+    ast_prog = convert_program(parse_tree.root)
+    return Tree(ast_prog)
 
 
 def convert_program(prog: parser_ast.Program) -> assembly_ast.Program:
@@ -31,8 +31,7 @@ def convert_program(prog: parser_ast.Program) -> assembly_ast.Program:
     :return: An assembly Program node
     """
     ast_func_def = convert_function_definition(prog.function_definition)
-    ast_prog = assembly_ast.Program(ast_func_def)
-    return ast_prog
+    return assembly_ast.Program(ast_func_def)
 
 
 def convert_function_definition(func_def: parser_ast.Function) -> assembly_ast.Function:
