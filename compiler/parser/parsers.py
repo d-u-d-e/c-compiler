@@ -2,7 +2,7 @@ from compiler.lexer.lexer import Token
 from compiler.parser.ast import (
     Constant,
     Exp,
-    FunctionDefinition,
+    Function,
     Identifier,
     Program,
     Return,
@@ -37,15 +37,14 @@ def parse_program(tokens: list[Token]) -> Program:
     # No extra junk after function
     if len(tokens) != 0:
         raise SyntaxError(
-            f"Program contains junk after function '{main_func.name.name}'"
+            f"Program contains junk after function '{main_func.name.value}'"
         )
 
-    prog = Program()
-    main_func.parent = prog
+    prog = Program(func_def=main_func)
     return prog
 
 
-def parse_function(tokens: list[Token]) -> FunctionDefinition:
+def parse_function(tokens: list[Token]) -> Function:
     """Parses a list of tokens representing a function and validates the syntax.
 
     Args:
@@ -65,7 +64,7 @@ def parse_function(tokens: list[Token]) -> FunctionDefinition:
     statement = parse_statement(tokens)
     expect_token_type(Token.TokenType.CloseBrace, tokens)
 
-    func = FunctionDefinition(parent=None, identifier=identifier, statement=statement)
+    func = Function(parent=None, name=identifier, body=statement)
     statement.parent = func
     return func
 
@@ -98,8 +97,7 @@ def parse_return_statement(tokens: list) -> Return:
     expr = parse_expression(tokens)
     expect_token_type(Token.TokenType.Semicolon, tokens)
 
-    ret = Return(parent=None)
-    expr.parent = ret
+    ret = Return(parent=None, exp=expr)
     return ret
 
 
@@ -114,7 +112,7 @@ def parse_identifier(tokens: list[Token]) -> Identifier:
     """
 
     tok = expect_token_type(Token.TokenType.Identifier, tokens)
-    return Identifier(parent=None, name=tok.value)
+    return Identifier(parent=None, value=tok.value)
 
 
 def parse_expression(tokens: list[Token]) -> Exp:

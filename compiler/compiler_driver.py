@@ -7,9 +7,10 @@ from tempfile import NamedTemporaryFile
 
 from loguru import logger
 
+from compiler.assembly_generation.generator import generate_assembly_ast
 from compiler.lexer import lexer
 from compiler.parser import parsers
-from compiler.parser.ast import generate_pretty_ast_repr
+from lib.ast.ast import generate_pretty_ast_repr
 
 
 def gcc_preprocess(input_file: str, output_file: str) -> None:
@@ -95,9 +96,9 @@ def run_compiler_stages(input_file: str, stage: str) -> None:
                 parse_tree = parsers.run_parser(tokens)
                 logger.debug("Parse tree:\n" + generate_pretty_ast_repr(parse_tree))
             elif current_stage == "codegen":
-                # TODO: implement the code generation stage
-                # TODO: do something with the parse tree
-                raise NotImplementedError("Code generation stage is not implemented.")
+                assert parse_tree is not None
+                assembly_ast = generate_assembly_ast(parse_tree)
+                logger.debug("Assembly AST:\n" + generate_pretty_ast_repr(assembly_ast))
 
             # Stop once we've reached the chosen stage
             if current_stage == stage:
