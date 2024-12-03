@@ -8,6 +8,7 @@ from tempfile import NamedTemporaryFile
 from loguru import logger
 
 from compiler.assembly_generation.generator import generate_assembly_ast
+from compiler.code_emission.writer import write_assembly_code
 from compiler.lexer import lexer
 from compiler.parser import parsers
 from lib.ast.ast import generate_pretty_ast_repr
@@ -64,6 +65,7 @@ def run_compiler_stages(input_file: str, stage: str) -> None:
     - `lex`: Performs lexing only.
     - `parse`: Performs lexing and parsing.
     - `codegen`: Performs lexing, parsing, and code generation, stopping before code emission.
+    If the stage is not specified, the whole compiler is executed.
 
     Args:
         input_file: The path to the input C source file.
@@ -75,7 +77,7 @@ def run_compiler_stages(input_file: str, stage: str) -> None:
         NotImplementedError: If a stage has not yet be implemented. TODO: Remove after completing Chapter 1
     """
     stages = ["lex", "parse", "codegen"]
-    if stage not in stages:
+    if stage not in stages and stage is not None:
         raise ValueError(
             f"Invalid stage '{stage}'. Please choose 'lex', 'parse', or 'codegen'."
         )
@@ -103,6 +105,9 @@ def run_compiler_stages(input_file: str, stage: str) -> None:
             # Stop once we've reached the chosen stage
             if current_stage == stage:
                 break
+        if stage is None:
+            out_path, out_code = write_assembly_code(assembly_ast, input_file)
+            logger.debug(f"Assembly code (stored in {out_path}):\n{out_code}")
 
 
 def gcc_assemble_and_link(input_file: str, output_file: str) -> None:
@@ -177,6 +182,10 @@ def main():
         elif args.codegen:
             stage = "codegen"
         run_compiler_stages(INPUT_FILE, stage)
+        exit(0)
+    else:
+        # Run the whole compiler
+        run_compiler_stages(INPUT_FILE, None)
         exit(0)
 
     # Execute compiler driver's commands
