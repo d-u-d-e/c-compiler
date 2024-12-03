@@ -112,7 +112,7 @@ def translate_mov(mov_instruction: assembly_ast.Mov, comment="") -> str:
     mov_code = "movl\t"
     for child in mov_instruction.children:
         if isinstance(child, assembly_ast.Immediate):
-            mov_code += f"%{child.value}, "
+            mov_code += f"${child.value}, "
         elif isinstance(child, assembly_ast.Register):
             mov_code += f"%{child.name}, "
         else:
