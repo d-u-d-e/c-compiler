@@ -11,14 +11,14 @@ from compiler.parser.ast import (
     Return,
     Statement,
 )
-from compiler.parser.parsers import (
+from compiler.parser.parser import (
     expect_token_type,
+    generate_parse_tree,
     parse_expression,
     parse_function,
     parse_identifier,
     parse_program,
     parse_return_statement,
-    run_parser,
 )
 from lib.tree.tree import Tree
 
@@ -40,7 +40,7 @@ class TestParserChapter01(unittest.TestCase):
     ]
 
     def test_run_valid_token_list(self):
-        output = run_parser(self.valid_return_program_token_list.copy())
+        output = generate_parse_tree(self.valid_return_program_token_list.copy())
 
         self.assertIsInstance(output, Tree)
 
