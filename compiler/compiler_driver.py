@@ -48,12 +48,18 @@ def run_compiler(input_file: str, output_file: str, use_gcc: bool) -> None:
             check=True,
         )
     else:
-        # TODO: Implement your compiler
+        # Running the implemented compiler
         # 1. Lexer
+        tokens = lexer.run_lexer(input_file)
         # 2. Parser
+        parse_tree = parsers.run_parser(tokens)
+        logger.debug("Parse tree:\n" + generate_pretty_ast_repr(parse_tree))
         # 3. Assembly generation
+        assembly_ast = generate_assembly_ast(parse_tree)
+        logger.debug("Assembly AST:\n" + generate_pretty_ast_repr(assembly_ast))
         # 4. Code emission
-        pass
+        out_code = write_assembly_code(assembly_ast, output_file)
+        logger.debug(f"Assembly code:\n{out_code}")
 
 
 def run_compiler_stages(input_file: str, stage: str) -> None:
@@ -65,7 +71,6 @@ def run_compiler_stages(input_file: str, stage: str) -> None:
     - `lex`: Performs lexing only.
     - `parse`: Performs lexing and parsing.
     - `codegen`: Performs lexing, parsing, and code generation, stopping before code emission.
-    If the stage is not specified, the whole compiler is executed.
 
     Args:
         input_file: The path to the input C source file.
@@ -74,7 +79,6 @@ def run_compiler_stages(input_file: str, stage: str) -> None:
     Raises:
         subprocess.CalledProcessError: If the preprocessing step using GCC fails.
         ValueError: If `stage` is not one of the expected values.
-        NotImplementedError: If a stage has not yet be implemented. TODO: Remove after completing Chapter 1
     """
     stages = ["lex", "parse", "codegen"]
     if stage not in stages and stage is not None:
@@ -105,9 +109,6 @@ def run_compiler_stages(input_file: str, stage: str) -> None:
             # Stop once we've reached the chosen stage
             if current_stage == stage:
                 break
-        if stage is None:
-            out_path, out_code = write_assembly_code(assembly_ast, input_file)
-            logger.debug(f"Assembly code (stored in {out_path}):\n{out_code}")
 
 
 def gcc_assemble_and_link(input_file: str, output_file: str) -> None:
@@ -183,10 +184,6 @@ def main():
             stage = "codegen"
         run_compiler_stages(INPUT_FILE, stage)
         exit(0)
-    else:
-        # Run the whole compiler
-        run_compiler_stages(INPUT_FILE, None)
-        exit(0)
 
     # Execute compiler driver's commands
     with (
@@ -196,7 +193,7 @@ def main():
         try:
             gcc_preprocess(INPUT_FILE, preprocessed_file.name)
 
-            run_compiler(preprocessed_file.name, assembly_file.name, use_gcc=True)
+            run_compiler(preprocessed_file.name, assembly_file.name, use_gcc=False)
 
             gcc_assemble_and_link(assembly_file.name, OUTPUT_FILE)
         except subprocess.CalledProcessError as e:

@@ -1,5 +1,3 @@
-import os
-
 import compiler.assembly_generation.ast as assembly_ast
 from lib.tree.tree import Tree
 
@@ -15,21 +13,16 @@ def add_comment(comment: str, on_new_line=False) -> str:
         return f"\t#{new_comment}"
 
 
-def write_assembly_code(input_tree: Tree, input_file: str) -> tuple[str, str]:
+def write_assembly_code(input_tree: Tree, output_path: str) -> str:
     """
     Translates the input assembly AST to the corresponding assembly code,
-    then writes it into a .s file stored in the folder ./output/ .
+    then writes it into the file whose path is received as the second input.
 
     :param input_tree: The assembly AST to be translated
-    :param input_file: The string containing the file path of the source program in c
+    :param output_path: The string containing the file path in which to write the assembly code
     :raises: TypeError: If the root node of the parse tree is not a Program node
-    :return: First returned string is the output path, second one is the assembly code text
+    :return: A string containing the whole assembly code
     """
-    filename = os.path.splitext(os.path.basename(input_file))[0]
-    output_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "output", f"{filename}.s"
-    )
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
     if not isinstance(input_tree.root, assembly_ast.Program):
         raise TypeError(
@@ -38,7 +31,7 @@ def write_assembly_code(input_tree: Tree, input_file: str) -> tuple[str, str]:
     output_code = translate_program(input_tree.root)
     with open(output_path, "w") as f:
         f.write(output_code)
-    return output_path, output_code
+    return output_code
 
 
 def translate_program(program: assembly_ast.Program) -> str:
@@ -50,7 +43,7 @@ def translate_program(program: assembly_ast.Program) -> str:
     """
     function_code = translate_function(program.function_definition)
     # The following line indicates that the code won't need an executable stack
-    ending_line = '\t.section .note.GNU-stack,"",@progbits'
+    ending_line = '\t.section .note.GNU-stack,"",@progbits\n'
     return function_code + ending_line
 
 
