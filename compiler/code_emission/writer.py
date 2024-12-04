@@ -3,6 +3,13 @@ from lib.tree.tree import Tree
 
 
 def add_comment(comment: str, on_new_line=False) -> str:
+    """
+    Use the input text as a comment to add to the assembly code
+
+    :param comment: The assembly AST to be translated
+    :param on_new_line: Boolean to be set to True for the comment to appear on a new line
+    :return: A comment (in form of string) containing the input text
+    """
     if comment == "":
         return ""
     # If the provided input is a text written on multiple lines, '#' symbol is added in front of each line
@@ -101,6 +108,7 @@ def translate_mov(mov_instruction: assembly_ast.Mov, comment="") -> str:
     :param mov_instruction: The Mov node to translate
     :param comment: An optional comment to append to the line of code
     :raises: RuntimeError: If the operand inside the instruction is not recognized
+    :raises: SyntaxError: If the destination operand is an Immediate node
     :return: A string with the corresponding line of assembly code
     """
     src, dst = "", ""
