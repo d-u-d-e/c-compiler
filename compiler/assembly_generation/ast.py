@@ -94,10 +94,20 @@ class Mov(Instruction):
 
     def __init__(self, parent: ASTNode | None, source: Operand, destination: Operand):
         super().__init__(parent)
+        self._src = source
+        self._dst = destination
         source.parent = self
         destination.parent = self
         source.field_name = "src"
         destination.field_name = "dst"
+
+    @property
+    def source(self) -> Operand:
+        return self._src
+
+    @property
+    def destination(self) -> Operand:
+        return self._dst
 
     def __repr__(self) -> str:
         return "Mov"

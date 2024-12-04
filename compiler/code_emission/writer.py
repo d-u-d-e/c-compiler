@@ -41,10 +41,11 @@ def translate_program(program: assembly_ast.Program) -> str:
     :param program: The Program node to translate
     :return: A string with the corresponding assembly code
     """
+    header_line = "\t.intel_syntax noprefix\n"
     function_code = translate_function(program.function_definition)
     # The following line indicates that the code won't need an executable stack
     ending_line = '\t.section .note.GNU-stack,"",@progbits\n'
-    return function_code + ending_line
+    return header_line + function_code + ending_line
 
 
 def translate_function(function: assembly_ast.Function, comment="") -> str:
@@ -102,15 +103,24 @@ def translate_mov(mov_instruction: assembly_ast.Mov, comment="") -> str:
     :raises: RuntimeError: If the operand inside the instruction is not recognized
     :return: A string with the corresponding line of assembly code
     """
-    mov_code = "movl\t"
-    for child in mov_instruction.children:
-        if isinstance(child, assembly_ast.Immediate):
-            mov_code += f"${child.value}, "
-        elif isinstance(child, assembly_ast.Register):
-            mov_code += f"%{child.name}, "
-        else:
-            raise RuntimeError(
-                f"Failed to translate operand '{child}' inside move instruction"
-            )
-    # The spare ", " is excluded from the final instruction line
-    return f"{mov_code[:-2]}{add_comment(comment)}"
+    src, dst = "", ""
+    if isinstance(mov_instruction.source, assembly_ast.Register):
+        src = mov_instruction.source.name
+    elif isinstance(mov_instruction.source, assembly_ast.Immediate):
+        src = mov_instruction.source.value
+    else:
+        raise RuntimeError(
+            f"Failed to translate operand '{mov_instruction.source}' inside move instruction"
+        )
+
+    if isinstance(mov_instruction.destination, assembly_ast.Register):
+        dst = mov_instruction.destination.name
+    elif isinstance(mov_instruction.destination, assembly_ast.Immediate):
+        raise SyntaxError(
+            f"Cannot use Immediate operand '{mov_instruction.destination}' as destination for a move instruction"
+        )
+    else:
+        raise RuntimeError(
+            f"Failed to translate operand '{mov_instruction.destination}' inside move instruction"
+        )
+    return f"mov\t{dst}, {src}{add_comment(comment)}"
