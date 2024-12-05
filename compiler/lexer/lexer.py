@@ -62,17 +62,21 @@ class Token:
         return self._type.name
 
 
-def run_lexer(c_source_file: str) -> list[Token]:
-    """Reads in a C source file and produces a list of tokens.
+def tokenize(c_source_file: str) -> list[Token]:
+    """Tokenizes the contents of a C source file as part of the lexer component.
+
+    This function is responsible for the lexical analysis phase of the compiler.
+    It reads the specified C source file, breaks its content into a sequence of
+    tokens, and classifies them as keywords, identifiers, operators, literals, etc.
 
     Args:
-        c_source_file: Path to the C source file
+        c_source_file: Path to the C source file.
 
     Raises:
-        ValueError: If no match is found for a sequence in the source code
+        ValueError: If an unrecognized sequence is encountered in the source code.
 
     Returns:
-        A list of tokens.
+        A list of tokens representing the syntactic elements of the source file.
     """
     logger.info(f"Running lexer on file '{c_source_file}'...")
 

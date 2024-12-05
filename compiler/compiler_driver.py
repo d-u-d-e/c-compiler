@@ -7,10 +7,10 @@ from tempfile import NamedTemporaryFile
 
 from loguru import logger
 
-from compiler.assembly_generation.generator import generate_assembly_ast
+from compiler.assembly_generation.assembly_generation import generate_assembly_ast
 from compiler.code_emission.writer import write_assembly_code
-from compiler.lexer.lexer import run_lexer
-from compiler.parser.parsers import run_parser
+from compiler.lexer.lexer import tokenize
+from compiler.parser.parser import generate_parse_tree
 from lib.ast.ast import generate_pretty_ast_repr
 
 
@@ -52,8 +52,8 @@ def run_compiler(input_file: str, output_file: str, use_gcc: bool) -> None:
         logger.info(
             f"Compiling the preprocessed file '{input_file}' with the custom compiler..."
         )
-        tokens = run_lexer(input_file)
-        parse_tree = run_parser(tokens)
+        tokens = tokenize(input_file)
+        parse_tree = generate_parse_tree(tokens)
         logger.debug("Parse tree:\n" + generate_pretty_ast_repr(parse_tree))
         assembly_ast = generate_assembly_ast(parse_tree)
         logger.debug("Assembly AST:\n" + generate_pretty_ast_repr(assembly_ast))
@@ -96,9 +96,9 @@ def run_compiler_stages(input_file: str, stage: str) -> None:
         parse_tree = None
         for current_stage in stages:
             if current_stage == "lex":
-                tokens = run_lexer(preprocessed_file.name)
+                tokens = tokenize(preprocessed_file.name)
             elif current_stage == "parse":
-                parse_tree = run_parser(tokens)
+                parse_tree = generate_parse_tree(tokens)
                 logger.debug("Parse tree:\n" + generate_pretty_ast_repr(parse_tree))
             elif current_stage == "codegen":
                 assert parse_tree is not None
