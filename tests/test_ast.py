@@ -2,9 +2,9 @@ import unittest
 
 from loguru import logger
 
-from compiler.assembly_generation.generator import generate_assembly_ast
+from compiler.assembly_generation.assembly_generation import generate_assembly_ast
 from compiler.lexer.lexer import Token
-from compiler.parser.parsers import run_parser
+from compiler.parser.parser import generate_parse_tree
 from lib.ast.ast import generate_pretty_ast_repr
 
 logger.remove()
@@ -23,7 +23,7 @@ class TestAstChapter01(unittest.TestCase):
         Token(Token.TokenType.Semicolon),
         Token(Token.TokenType.CloseBrace),
     ]
-    parse_tree = run_parser(token_list.copy())
+    parse_tree = generate_parse_tree(token_list.copy())
     assembly_tree = generate_assembly_ast(parse_tree)
 
     def test_generate_pretty_ast_repr_for_parsing(self):
