@@ -2,24 +2,6 @@ import compiler.assembly_generation.ast as assembly_ast
 from lib.tree.tree import Tree
 
 
-def add_comment(comment: str, on_new_line=False) -> str:
-    """
-    Use the input text as a comment to add to the assembly code
-
-    :param comment: The assembly AST to be translated
-    :param on_new_line: Boolean to be set to True for the comment to appear on a new line
-    :return: A comment (in form of string) containing the input text
-    """
-    if comment == "":
-        return ""
-    # If the provided input is a text written on multiple lines, '#' symbol is added in front of each line
-    new_comment = comment.replace("\n", "\n#")
-    if on_new_line:
-        return f"\n#{new_comment}\n"
-    else:
-        return f"\t#{new_comment}"
-
-
 def write_assembly_code(input_tree: Tree, output_path: str) -> str:
     """
     Translates the input assembly AST to the corresponding assembly code,
@@ -55,17 +37,16 @@ def translate_program(program: assembly_ast.Program) -> str:
     return header_line + function_code + ending_line
 
 
-def translate_function(function: assembly_ast.Function, comment="") -> str:
+def translate_function(function: assembly_ast.Function) -> str:
     """
     Translates a Function node to the corresponding assembly code.
 
     :param function: The Function node to translate
-    :param comment: An optional comment to append after the .globl directive
     :return: A string with the corresponding assembly code
     """
     func_identifier = translate_identifier(function.name)
     instructions = translate_body(function.body)
-    header = f"\t.globl {func_identifier}{add_comment(comment)}\n"
+    header = f"\t.globl {func_identifier}\n"
     label = f"{func_identifier}:\n"
     return header + label + instructions
 
@@ -101,12 +82,11 @@ def translate_body(func_body: list[assembly_ast.Instruction]) -> str:
     return instructions_code
 
 
-def translate_mov(mov_instruction: assembly_ast.Mov, comment="") -> str:
+def translate_mov(mov_instruction: assembly_ast.Mov) -> str:
     """
     Translates a Mov node to the corresponding line of assembly code.
 
     :param mov_instruction: The Mov node to translate
-    :param comment: An optional comment to append to the line of code
     :raises: RuntimeError: If the operand inside the instruction is not recognized
     :raises: SyntaxError: If the destination operand is an Immediate node
     :return: A string with the corresponding line of assembly code
@@ -131,4 +111,4 @@ def translate_mov(mov_instruction: assembly_ast.Mov, comment="") -> str:
         raise RuntimeError(
             f"Failed to translate operand '{mov_instruction.destination}' inside move instruction"
         )
-    return f"mov\t{dst}, {src}{add_comment(comment)}"
+    return f"mov\t{dst}, {src}\n"
