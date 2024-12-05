@@ -11,11 +11,15 @@ from compiler.parser.ast import (
 from lib.tree.tree import Tree
 
 
-def run_parser(tokens: list[Token]) -> Tree:
-    """Parses the list of tokens that compose the program.
+def generate_parse_tree(tokens: list[Token]) -> Tree:
+    """Generates a parse tree from a list of tokens as part of the parser component.
+
+    This function performs the syntactic analysis phase of the compiler.
+    It takes a list of tokens produced by the lexer and constructs a parse tree,
+    which represents the hierarchical structure of the program according to the grammar rules.
 
     Args:
-        tokens: List of tokens.
+        tokens: A list of tokens representing the program.
 
     Returns:
         The parse tree rooted at the program node.

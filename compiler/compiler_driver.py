@@ -7,9 +7,9 @@ from tempfile import NamedTemporaryFile
 
 from loguru import logger
 
-from compiler.assembly_generation.generator import generate_assembly_ast
+from compiler.assembly_generation.assembly_generation import generate_assembly_ast
 from compiler.lexer import lexer
-from compiler.parser import parsers
+from compiler.parser import parser
 from lib.ast.ast import generate_pretty_ast_repr
 
 
@@ -91,9 +91,9 @@ def run_compiler_stages(input_file: str, stage: str) -> None:
         parse_tree = None
         for current_stage in stages:
             if current_stage == "lex":
-                tokens = lexer.run_lexer(preprocessed_file.name)
+                tokens = lexer.tokenize(preprocessed_file.name)
             elif current_stage == "parse":
-                parse_tree = parsers.run_parser(tokens)
+                parse_tree = parser.generate_parse_tree(tokens)
                 logger.debug("Parse tree:\n" + generate_pretty_ast_repr(parse_tree))
             elif current_stage == "codegen":
                 assert parse_tree is not None
