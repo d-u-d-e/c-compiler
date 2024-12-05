@@ -3,14 +3,6 @@ import unittest
 from loguru import logger
 
 from compiler.lexer.lexer import Token
-from compiler.parser.ast import (
-    Constant,
-    Function,
-    Identifier,
-    Program,
-    Return,
-    Statement,
-)
 from compiler.parser.parser import (
     expect_token_type,
     generate_parse_tree,
@@ -19,6 +11,14 @@ from compiler.parser.parser import (
     parse_identifier,
     parse_program,
     parse_return_statement,
+)
+from compiler.parser.parser_ast import (
+    Constant,
+    Function,
+    Identifier,
+    Program,
+    Return,
+    Statement,
 )
 from lib.tree.tree import Tree
 

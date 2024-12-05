@@ -8,7 +8,7 @@ from tempfile import NamedTemporaryFile
 from loguru import logger
 
 from compiler.assembly_generation.assembly_generation import generate_assembly_ast
-from compiler.code_emission.writer import write_assembly_code
+from compiler.code_emission.code_emission import emit_assembly_code
 from compiler.lexer.lexer import tokenize
 from compiler.parser.parser import generate_parse_tree
 from lib.ast.ast import generate_pretty_ast_repr
@@ -57,7 +57,7 @@ def run_compiler(input_file: str, output_file: str, use_gcc: bool) -> None:
         logger.debug("Parse tree:\n" + generate_pretty_ast_repr(parse_tree))
         assembly_ast = generate_assembly_ast(parse_tree)
         logger.debug("Assembly AST:\n" + generate_pretty_ast_repr(assembly_ast))
-        out_code = write_assembly_code(assembly_ast, output_file)
+        out_code = emit_assembly_code(assembly_ast, output_file)
         logger.debug(f"Assembly code:\n{out_code}")
 
 

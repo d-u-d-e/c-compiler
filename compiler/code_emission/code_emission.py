@@ -1,8 +1,8 @@
-import compiler.assembly_generation.ast as assembly_ast
+import compiler.assembly_generation.assembly_ast as assembly_ast
 from lib.tree.tree import Tree
 
 
-def write_assembly_code(input_tree: Tree, output_path: str) -> str:
+def emit_assembly_code(input_tree: Tree, output_path: str) -> str:
     """
     Translates the input assembly AST to the corresponding assembly code,
     then writes it into the file whose path is received as the second input.
