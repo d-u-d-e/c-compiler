@@ -46,7 +46,7 @@ def translate_function(function: assembly_ast.Function) -> str:
     """
     func_identifier = translate_identifier(function.name)
     instructions = translate_body(function.body)
-    header = f"\t.globl {func_identifier}\n"
+    header = f"\t.global {func_identifier}\n"
     label = f"{func_identifier}:\n"
     return header + label + instructions
 
