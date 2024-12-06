@@ -57,7 +57,9 @@ def run_compiler(input_file: str, output_file: str, use_gcc: bool) -> None:
         logger.debug("Parse tree:\n" + generate_pretty_ast_repr(parse_tree))
         assembly_ast = generate_assembly_ast(parse_tree)
         logger.debug("Assembly AST:\n" + generate_pretty_ast_repr(assembly_ast))
-        out_code = emit_assembly_code(assembly_ast, output_file)
+        out_code = emit_assembly_code(assembly_ast)
+        with open(output_file, "w") as f:
+            f.write(out_code)
         logger.debug(f"Assembly code:\n{out_code}")
 
 

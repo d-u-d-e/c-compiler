@@ -2,13 +2,12 @@ import compiler.assembly_generation.assembly_ast as assembly_ast
 from lib.tree.tree import Tree
 
 
-def emit_assembly_code(input_tree: Tree, output_path: str) -> str:
+def emit_assembly_code(input_tree: Tree) -> str:
     """
     Translates the input assembly AST to the corresponding assembly code,
-    then writes it into the file whose path is received as the second input.
+    then returns it as a string.
 
     :param input_tree: The assembly AST to be translated
-    :param output_path: The string containing the file path in which to write the assembly code
     :raises: TypeError: If the root node of the parse tree is not a Program node
     :return: A string containing the whole assembly code
     """
@@ -17,10 +16,7 @@ def emit_assembly_code(input_tree: Tree, output_path: str) -> str:
         raise TypeError(
             f"The root node of the assembly AST '{input_tree}' is not a Program node"
         )
-    output_code = translate_program(input_tree.root)
-    with open(output_path, "w") as f:
-        f.write(output_code)
-    return output_code
+    return translate_program(input_tree.root)
 
 
 def translate_program(program: assembly_ast.Program) -> str:
