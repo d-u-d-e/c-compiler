@@ -80,7 +80,7 @@ def run_compiler_stages(input_file: str, stage: str) -> None:
         ValueError: If `stage` is not one of the expected values.
     """
     stages = ["lex", "parse", "codegen"]
-    if stage not in stages and stage is not None:
+    if stage not in stages:
         raise ValueError(
             f"Invalid stage '{stage}'. Please choose 'lex', 'parse', or 'codegen'."
         )
