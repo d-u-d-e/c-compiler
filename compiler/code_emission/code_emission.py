@@ -41,9 +41,9 @@ def translate_function(function: assembly_ast.Function) -> str:
     :return: A string with the corresponding assembly code
     """
     func_identifier = translate_identifier(function.name)
-    instructions = translate_body(function.body)
     header = f"\t.global {func_identifier}\n"
     label = f"{func_identifier}:\n"
+    instructions = translate_body(function.body)
     return header + label + instructions
 
 
