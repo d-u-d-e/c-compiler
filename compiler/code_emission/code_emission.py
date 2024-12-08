@@ -107,4 +107,4 @@ def translate_mov(mov_instruction: assembly_ast.Mov) -> str:
         raise RuntimeError(
             f"Failed to translate operand '{mov_instruction.destination}' inside move instruction"
         )
-    return f"mov\t{dst}, {src}\n"
+    return f"mov\t{dst}, {src}"
