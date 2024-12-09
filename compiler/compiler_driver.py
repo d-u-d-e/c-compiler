@@ -8,8 +8,9 @@ from tempfile import NamedTemporaryFile
 from loguru import logger
 
 from compiler.assembly_generation.assembly_generation import generate_assembly_ast
-from compiler.lexer import lexer
-from compiler.parser import parser
+from compiler.code_emission.code_emission import emit_assembly_code
+from compiler.lexer.lexer import tokenize
+from compiler.parser.parser import generate_parse_tree
 from lib.ast.ast import generate_pretty_ast_repr
 
 
@@ -31,13 +32,14 @@ def run_compiler(input_file: str, output_file: str, use_gcc: bool) -> None:
         input_file: Path to the preprocessed C file. The file should have a `.i` extension.
         output_file: Path to the compiled assembly file. The file should have a `.s` extension.
     """
-    logger.info(f"Compiling preprocessed file '{input_file}'...")
     if use_gcc:
+        logger.info(f"Compiling the preprocessed file '{input_file}' with GCC...")
         subprocess.run(
             [
                 "gcc",
                 "-S",
                 "-O",
+                "-masm=intel",
                 "-fno-asynchronous-unwind-tables",
                 "-fcf-protection=none",
                 input_file,
@@ -47,12 +49,18 @@ def run_compiler(input_file: str, output_file: str, use_gcc: bool) -> None:
             check=True,
         )
     else:
-        # TODO: Implement your compiler
-        # 1. Lexer
-        # 2. Parser
-        # 3. Assembly generation
-        # 4. Code emission
-        pass
+        logger.info(
+            f"Compiling the preprocessed file '{input_file}' with the custom compiler..."
+        )
+        tokens = tokenize(input_file)
+        parse_tree = generate_parse_tree(tokens)
+        logger.debug("Parse tree:\n" + generate_pretty_ast_repr(parse_tree))
+        assembly_ast = generate_assembly_ast(parse_tree)
+        logger.debug("Assembly AST:\n" + generate_pretty_ast_repr(assembly_ast))
+        out_code = emit_assembly_code(assembly_ast)
+        with open(output_file, "w") as f:
+            f.write(out_code)
+        logger.debug(f"Assembly code:\n{out_code}")
 
 
 def run_compiler_stages(input_file: str, stage: str) -> None:
@@ -72,7 +80,6 @@ def run_compiler_stages(input_file: str, stage: str) -> None:
     Raises:
         subprocess.CalledProcessError: If the preprocessing step using GCC fails.
         ValueError: If `stage` is not one of the expected values.
-        NotImplementedError: If a stage has not yet be implemented. TODO: Remove after completing Chapter 1
     """
     stages = ["lex", "parse", "codegen"]
     if stage not in stages:
@@ -91,9 +98,9 @@ def run_compiler_stages(input_file: str, stage: str) -> None:
         parse_tree = None
         for current_stage in stages:
             if current_stage == "lex":
-                tokens = lexer.tokenize(preprocessed_file.name)
+                tokens = tokenize(preprocessed_file.name)
             elif current_stage == "parse":
-                parse_tree = parser.generate_parse_tree(tokens)
+                parse_tree = generate_parse_tree(tokens)
                 logger.debug("Parse tree:\n" + generate_pretty_ast_repr(parse_tree))
             elif current_stage == "codegen":
                 assert parse_tree is not None
@@ -113,7 +120,7 @@ def gcc_assemble_and_link(input_file: str, output_file: str) -> None:
         output_file: Path to the executable file.
     """
     logger.info(f"Assembling and linking assembly file '{input_file}'...")
-    subprocess.run(["gcc", input_file, "-o", output_file], check=True)
+    subprocess.run(["gcc", "-masm=intel", input_file, "-o", output_file], check=True)
 
 
 def cfile_type(s: str) -> str:
@@ -187,7 +194,7 @@ def main():
         try:
             gcc_preprocess(INPUT_FILE, preprocessed_file.name)
 
-            run_compiler(preprocessed_file.name, assembly_file.name, use_gcc=True)
+            run_compiler(preprocessed_file.name, assembly_file.name, use_gcc=False)
 
             gcc_assemble_and_link(assembly_file.name, OUTPUT_FILE)
         except subprocess.CalledProcessError as e:

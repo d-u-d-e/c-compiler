@@ -1,5 +1,5 @@
 from compiler.lexer.lexer import Token
-from compiler.parser.ast import (
+from compiler.parser.parser_ast import (
     Constant,
     Exp,
     Function,

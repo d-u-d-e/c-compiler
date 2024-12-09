@@ -1,5 +1,5 @@
-import compiler.assembly_generation.ast as assembly_ast
-import compiler.parser.ast as parser_ast
+import compiler.assembly_generation.assembly_ast as assembly_ast
+import compiler.parser.parser_ast as parser_ast
 from lib.tree.tree import Tree
 
 
