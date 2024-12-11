@@ -9,6 +9,9 @@ jobs:
   update-changelog:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -17,19 +20,13 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: 22
-
-    - name: Install dependencies
-      run: npm install -g conventional-changelog-cli
-
-    - name: Generate CHANGELOG.md
-      run: conventional-changelog -p angular -o CHANGELOG.md -r 0
-
-    - name: Commit and push changes
+    
+    # remove "--first-release" after the first release
+    - name: Commit and push CHANGELOG.md and updated package files
       run: |
         git config --global user.name 'github-actions'
         git config --global user.email 'actions@github.com'
-        git add CHANGELOG.md
-        git commit -m "chore: :robot: updated CHANGELOG.md"
-        git push
+        npx commit-and-tag-version --first-release --packageFiles pyproject.toml --bumpFiles pyproject.toml
+        git push --follow-tags origin main
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
