@@ -9,10 +9,15 @@ jobs:
   update-changelog:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-
+      with:
+        ssh-key: ${{ secrets.DEPLOY_KEY_PRV }}
+       
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
@@ -29,7 +34,7 @@ jobs:
         git config --global user.name 'github-actions'
         git config --global user.email 'actions@github.com'
         git add CHANGELOG.md
-        git commit -m "chore: :robot: updated CHANGELOG.md"
+        git commit -m "chore: :robot: updated CHANGELOG.md" || true
         git push
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
