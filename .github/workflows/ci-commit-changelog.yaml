@@ -9,10 +9,15 @@ jobs:
   update-changelog:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-
+      with:
+        ssh-key: ${{ secrets.DEPLOY_KEY_PRV }}
+        
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
