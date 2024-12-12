@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/d-u-d-e/c-compiler/compare/v0.1.0...v0.2.0) (2024-12-12)
+
+
+### Features
+
+* add dummy file ([f48c2cf](https://github.com/d-u-d-e/c-compiler/commit/f48c2cf5c5ec91b31d48c32d21c20f51ef4bd450))
+
 ## 0.1.0 (2024-12-12)
 
 
