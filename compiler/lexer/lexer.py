@@ -1,4 +1,5 @@
 import re
+from collections import OrderedDict
 from enum import Enum
 from typing import Any
 
@@ -26,19 +27,30 @@ class Token:
         IntKeyword = 7
         VoidKeyword = 8
         ReturnKeyword = 9
+        OperatorNegate = 10
+        OperatorComplement = 11
+        OperatorDecrement = 12
 
         def __repr__(self) -> str:
             return self.name
 
-    token_patterns = {
-        TokenType.Identifier: re.compile(r"[a-zA-Z_]\w*\b"),
-        TokenType.Constant: re.compile(r"[0-9]+\b"),
-        TokenType.OpenParenthesis: re.compile(r"\("),
-        TokenType.CloseParenthesis: re.compile(r"\)"),
-        TokenType.OpenBrace: re.compile(r"{"),
-        TokenType.CloseBrace: re.compile(r"}"),
-        TokenType.Semicolon: re.compile(r";"),
-    }
+    # Place all regexps in order so that we match for the longest possible token
+    # for example:
+    # '--' should match OperatorDecrement first, not OperatorNegate
+    token_patterns = OrderedDict(
+        {
+            TokenType.Identifier: re.compile(r"[a-zA-Z_]\w*\b"),
+            TokenType.Constant: re.compile(r"[0-9]+\b"),
+            TokenType.OpenParenthesis: re.compile(r"\("),
+            TokenType.CloseParenthesis: re.compile(r"\)"),
+            TokenType.OpenBrace: re.compile(r"{"),
+            TokenType.CloseBrace: re.compile(r"}"),
+            TokenType.Semicolon: re.compile(r";"),
+            TokenType.OperatorDecrement: re.compile(r"--"),
+            TokenType.OperatorNegate: re.compile(r"-"),
+            TokenType.OperatorComplement: re.compile(r"~"),
+        }
+    )
 
     token_keywords = {
         TokenType.IntKeyword: re.compile(r"\bint\b"),
@@ -59,7 +71,12 @@ class Token:
         return self._type
 
     def __repr__(self) -> str:
-        return self._type.name
+        return f"<{self._type.name}, '{self._value}'>"
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, Token):
+            return False
+        return self._type == other._type and self._value == other.value
 
 
 def tokenize(c_source_file: str) -> list[Token]:
