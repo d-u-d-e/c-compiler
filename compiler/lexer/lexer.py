@@ -26,10 +26,16 @@ class Token:
         IntKeyword = 7
         VoidKeyword = 8
         ReturnKeyword = 9
+        Minus = 10
+        Complement = 11
+        MinusMinus = 12
 
         def __repr__(self) -> str:
             return self.name
 
+    # Place all regexps in order so that we match for the longest possible token
+    # for example:
+    # '--' should match MinusMinus first, not Minus
     token_patterns = {
         TokenType.Identifier: re.compile(r"[a-zA-Z_]\w*\b"),
         TokenType.Constant: re.compile(r"[0-9]+\b"),
@@ -38,6 +44,9 @@ class Token:
         TokenType.OpenBrace: re.compile(r"{"),
         TokenType.CloseBrace: re.compile(r"}"),
         TokenType.Semicolon: re.compile(r";"),
+        TokenType.MinusMinus: re.compile(r"--"),
+        TokenType.Minus: re.compile(r"-"),
+        TokenType.Complement: re.compile(r"~"),
     }
 
     token_keywords = {
@@ -59,7 +68,12 @@ class Token:
         return self._type
 
     def __repr__(self) -> str:
-        return self._type.name
+        return f"<{self._type.name}, '{self._value}'>"
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, Token):
+            return False
+        return self._type == other._type and self._value == other.value
 
 
 def tokenize(c_source_file: str) -> list[Token]:

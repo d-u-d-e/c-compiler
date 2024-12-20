@@ -1,5 +1,12 @@
 # Changelog 📋
 
+## [0.2.0](https://github.com/d-u-d-e/c-compiler/compare/v0.1.0...v0.2.0) (2024-12-20)
+
+
+### Features
+
+* **lexer:** recognize complement and negate operators ([#72](https://github.com/d-u-d-e/c-compiler/issues/72)) ([4357c6f](https://github.com/d-u-d-e/c-compiler/commit/4357c6ff1db9809d1f394172c637929eb84ba98c))
+
 ## 0.1.0 (2024-12-12)
 
 
