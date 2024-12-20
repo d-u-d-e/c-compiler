@@ -208,5 +208,80 @@ class TestLexerChapter01(unittest.TestCase):
                 lexer.tokenize(preprocessed_file.name)
 
 
+class TestLexerChapter02(unittest.TestCase):
+    test_samples_path = "tests/test_samples/chapter_2"
+
+    def test_invalid_parse_decrement_num(self):
+        # Check if the token is still produced correctly, although the parsing is bound to fail
+        # In particular note that we should obtain '--' as a single token, and not '-', followed by '-'
+        path = os.path.join(self.test_samples_path, "invalid_parse", "decrement_num.c")
+        expected_list = [
+            Token(Token.TokenType.IntKeyword, "int"),
+            Token(Token.TokenType.Identifier, "main"),
+            Token(Token.TokenType.OpenParenthesis, "("),
+            Token(Token.TokenType.VoidKeyword, "void"),
+            Token(Token.TokenType.CloseParenthesis, ")"),
+            Token(Token.TokenType.OpenBrace, "{"),
+            Token(Token.TokenType.ReturnKeyword, "return"),
+            Token(Token.TokenType.MinusMinus, "--"),
+            Token(Token.TokenType.Constant, "3"),
+            Token(Token.TokenType.Semicolon, ";"),
+            Token(Token.TokenType.CloseBrace, "}"),
+        ]
+        with NamedTemporaryFile(suffix=".i") as preprocessed_file:
+            gcc_preprocess(path, preprocessed_file.name)
+            tokens = lexer.tokenize(preprocessed_file.name)
+        self.assertListEqual(tokens, expected_list)
+
+    def test_nested_ops_2(self):
+        path = os.path.join(self.test_samples_path, "valid", "nested_ops_2.c")
+        expected_list = [
+            Token(Token.TokenType.IntKeyword, "int"),
+            Token(Token.TokenType.Identifier, "main"),
+            Token(Token.TokenType.OpenParenthesis, "("),
+            Token(Token.TokenType.VoidKeyword, "void"),
+            Token(Token.TokenType.CloseParenthesis, ")"),
+            Token(Token.TokenType.OpenBrace, "{"),
+            Token(Token.TokenType.ReturnKeyword, "return"),
+            Token(Token.TokenType.Minus, "-"),
+            Token(Token.TokenType.Complement, "~"),
+            Token(Token.TokenType.Constant, "0"),
+            Token(Token.TokenType.Semicolon, ";"),
+            Token(Token.TokenType.CloseBrace, "}"),
+        ]
+        with NamedTemporaryFile(suffix=".i") as preprocessed_file:
+            gcc_preprocess(path, preprocessed_file.name)
+            tokens = lexer.tokenize(preprocessed_file.name)
+        self.assertListEqual(tokens, expected_list)
+
+    def test_redundant_parens(self):
+        path = os.path.join(self.test_samples_path, "valid", "redundant_parens.c")
+        expected_list = [
+            Token(Token.TokenType.IntKeyword, "int"),
+            Token(Token.TokenType.Identifier, "main"),
+            Token(Token.TokenType.OpenParenthesis, "("),
+            Token(Token.TokenType.VoidKeyword, "void"),
+            Token(Token.TokenType.CloseParenthesis, ")"),
+            Token(Token.TokenType.OpenBrace, "{"),
+            Token(Token.TokenType.ReturnKeyword, "return"),
+            Token(Token.TokenType.Minus, "-"),
+            Token(Token.TokenType.OpenParenthesis, "("),
+            Token(Token.TokenType.OpenParenthesis, "("),
+            Token(Token.TokenType.OpenParenthesis, "("),
+            Token(Token.TokenType.OpenParenthesis, "("),
+            Token(Token.TokenType.Constant, "10"),
+            Token(Token.TokenType.CloseParenthesis, ")"),
+            Token(Token.TokenType.CloseParenthesis, ")"),
+            Token(Token.TokenType.CloseParenthesis, ")"),
+            Token(Token.TokenType.CloseParenthesis, ")"),
+            Token(Token.TokenType.Semicolon, ";"),
+            Token(Token.TokenType.CloseBrace, "}"),
+        ]
+        with NamedTemporaryFile(suffix=".i") as preprocessed_file:
+            gcc_preprocess(path, preprocessed_file.name)
+            tokens = lexer.tokenize(preprocessed_file.name)
+        self.assertListEqual(tokens, expected_list)
+
+
 if __name__ == "__main__":
     unittest.main()
